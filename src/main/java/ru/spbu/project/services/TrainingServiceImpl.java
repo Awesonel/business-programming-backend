@@ -71,7 +71,7 @@ public class TrainingServiceImpl implements TrainingService {
           "The employee is at a different stage. Current stage: " + employee.getStage());
     }
     employee.setStage(Stage.PASSES_ENTRANCE_TEST);
-    employee.setStartTime(LocalDate.now());
+    employee.setStartTime(date);
     employeeRepository.save(employee);
   }
 
@@ -94,6 +94,7 @@ public class TrainingServiceImpl implements TrainingService {
       throws TimeUpException {
     long timePassed = ChronoUnit.DAYS.between(employee.getStartTime(), currentDate);
     if (timePassed > INVITATION_TIME_LIMIT) {
+      employee.setStage(Stage.REFUSAL_APPLICATION);
       employee.setActive(false);
       employeeRepository.save(employee);
       throw new TimeUpException("It is possible to answer application in " + INVITATION_TIME_LIMIT
@@ -111,7 +112,7 @@ public class TrainingServiceImpl implements TrainingService {
     if (!testDTO.getTestType().equals(TestType.ENTRY)) {
       throw new TestTypeException("Test type isn't ENTRY!");
     }
-    checkTestTime(employee, testDTO.getDate());
+    checkEntryTestTime(employee, testDTO.getDate());
     Test test = new Test(employee, testDTO.getTestType(), testDTO.getScore() / 20,
         testDTO.getDate());
     if (test.getScorePercent() < 0.8) {
@@ -122,12 +123,13 @@ public class TrainingServiceImpl implements TrainingService {
     }
     employeeRepository.save(employee);
     testRepository.save(test);
-    return test.getScorePercent() < 0.8;
+    return test.getScorePercent() >= 0.8;
   }
 
-  private void checkTestTime(Employee employee, LocalDate date) throws TimeUpException {
+  private void checkEntryTestTime(Employee employee, LocalDate date) throws TimeUpException {
     long timePassed = ChronoUnit.DAYS.between(employee.getStartTime(), date);
     if (timePassed > ENTRY_TEST_TIME_LIMIT) {
+      employee.setStage(Stage.FAILED_ENTRANCE_TEST);
       employee.setActive(false);
       employeeRepository.save(employee);
       throw new TimeUpException("It is possible to pass test in " + ENTRY_TEST_TIME_LIMIT
