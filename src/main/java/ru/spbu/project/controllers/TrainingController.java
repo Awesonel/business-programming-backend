@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.spbu.project.models.dto.RejectApplicationDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.enums.Stage;
-import ru.spbu.project.models.exceptions.StageDifferent;
+import ru.spbu.project.models.exceptions.DifferentStageException;
 import ru.spbu.project.models.exceptions.TimeUpException;
 import ru.spbu.project.services.TrainingService;
 
@@ -35,18 +36,17 @@ public class TrainingController {
   @PostMapping("/confirmParticipation/{employeeId}")
   public ResponseEntity<String> confirmParticipation(@PathVariable Long employeeId, @RequestBody
   LocalDate localDate)
-      throws TimeUpException {
+          throws TimeUpException, DifferentStageException {
     trainingService.confirmTraining(employeeId, localDate);
     return new ResponseEntity<>(String.valueOf(Stage.PASSES_ENTRANCE_TEST),
         HttpStatus.OK);
   }
 
-  @PostMapping("/refuseParticipation/{employeeId}")
-  public ResponseEntity<String> refuseParticipation(@PathVariable Long employeeId,
-      @RequestBody String reason, @RequestBody LocalDate localDate)
-      throws StageDifferent {
-    trainingService.refuseTraining(employeeId, reason, localDate);
-    return new ResponseEntity<>(reason, HttpStatus.OK);
+  @PostMapping("/refuseParticipation")
+  public ResponseEntity<String> refuseParticipation(@RequestBody RejectApplicationDTO rejection)
+          throws DifferentStageException, TimeUpException {
+    trainingService.refuseTraining(rejection.getId(), rejection.getReason(), rejection.getDate());
+    return new ResponseEntity<>(rejection.getReason(), HttpStatus.OK);
   }
 
   @ExceptionHandler(TimeUpException.class)
@@ -54,8 +54,8 @@ public class TrainingController {
     return ResponseEntity.status(HttpStatus.OK).body(new ErrorMessage(exception.getMessage()));
   }
 
-  @ExceptionHandler(StageDifferent.class)
-  public ResponseEntity<ErrorMessage> stageDifferent(StageDifferent exception) {
+  @ExceptionHandler(DifferentStageException.class)
+  public ResponseEntity<ErrorMessage> stageDifferent(DifferentStageException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(new ErrorMessage(exception.getMessage()));
   }

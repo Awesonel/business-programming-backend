@@ -5,11 +5,10 @@ import ru.spbu.project.models.Employee;
 import ru.spbu.project.models.Leader;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.enums.Stage;
+import ru.spbu.project.models.exceptions.DifferentStageException;
 import ru.spbu.project.models.exceptions.TimeUpException;
 import ru.spbu.project.repositories.EmployeeRepository;
 import ru.spbu.project.repositories.LeaderRepository;
-
-import javax.naming.TimeLimitExceededException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -19,7 +18,7 @@ public class TrainingServiceImpl implements TrainingService {
   final LeaderRepository leaderRepository;
   final EmployeeRepository employeeRepository;
   final EmployeeService employeeService;
-  private double invitationTimeLimit;
+  static final int INVITATION_TIME_LIMIT = 3;
 
   public TrainingServiceImpl(LeaderRepository leaderRepository, EmployeeRepository employeeRepository, EmployeeService employeeService) {
     this.leaderRepository = leaderRepository;
@@ -35,12 +34,14 @@ public class TrainingServiceImpl implements TrainingService {
             applicationDTO.getLeaderSurname(),
             applicationDTO.getLeaderPatronymic(),
             applicationDTO.getLeaderJobTitle());
+    Leader leader;
     if (leaders.isEmpty()) {
-      Leader leader = new Leader(applicationDTO.getLeaderName(), applicationDTO.getLeaderSurname(),
+      leader = new Leader(applicationDTO.getLeaderName(), applicationDTO.getLeaderSurname(),
               applicationDTO.getLeaderPatronymic(), applicationDTO.getLeaderJobTitle());
       leaderRepository.save(leader);
+    } else {
+      leader = leaders.get(0);
     }
-    Leader leader = leaders.get(0);
     Employee employee = new Employee(applicationDTO.getEmployeeName(), applicationDTO.getEmployeeSurname(),
             applicationDTO.getEmployeePatronymic(), applicationDTO.getEmployeeJobTitle(),
             applicationDTO.getProject(), applicationDTO.getTrainingPurpose(), leader);
@@ -50,11 +51,11 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   @Override
-  public void confirmTraining(Long employeeId, LocalDate date) throws TimeUpException {
+  public void confirmTraining(Long employeeId, LocalDate date) throws TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     checkInvitationTime(employee.getStartTime(), date);
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
-      throw new IllegalArgumentException("The employee is at a different stage. Current stage: " + employee.getStage());
+      throw new DifferentStageException("The employee is at a different stage. Current stage: " + employee.getStage());
     }
     employee.setStage(Stage.PASSES_ENTRANCE_TEST);
     employee.setStartTime(LocalDate.now());
@@ -62,20 +63,20 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   @Override
-  public void refuseTraining(Long employeeID, String reason, LocalDate date) throws StageDifferent {
-    // TODO: 30.11.2023 Проверка времени!!!
+  public void refuseTraining(Long employeeID, String reason, LocalDate date) throws DifferentStageException, TimeUpException {
     Employee employee = employeeService.findEmployeeByID(employeeID);
+    checkInvitationTime(employee.getStartTime(), date);
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
-      throw new StageDifferent("The employee is at a different stage. Current stage: " + employee.getStage());
+      throw new DifferentStageException("The employee is at a different stage. Current stage: " + employee.getStage());
     }
-    employee.setStage(Stage.PASSES_ENTRANCE_TEST);
+    employee.setStage(Stage.REFUSAL_APPLICATION);
     employeeRepository.save(employee);
   }
 
   private void checkInvitationTime(LocalDate startTime, LocalDate currentDate) throws TimeUpException {
     long timePassed = ChronoUnit.DAYS.between(currentDate, startTime);
-    if (timePassed > invitationTimeLimit) {
-      throw new TimeUpException("It is possible to answer application in " + invitationTimeLimit
+    if (timePassed > INVITATION_TIME_LIMIT) {
+      throw new TimeUpException("It is possible to answer application in " + INVITATION_TIME_LIMIT
               + " days," + " but " + timePassed + " days were passed");
     }
   }
