@@ -9,12 +9,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.spbu.project.models.dto.ConfirmApplicationDTO;
 import ru.spbu.project.models.dto.RefuseApplicationDTO;
+import ru.spbu.project.models.dto.TestDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.enums.Stage;
 import ru.spbu.project.models.exceptions.DifferentStageException;
+import ru.spbu.project.models.exceptions.TestTypeException;
 import ru.spbu.project.models.exceptions.TimeUpException;
 import ru.spbu.project.services.TrainingService;
 
@@ -35,8 +38,9 @@ public class TrainingController {
   }
 
   @PostMapping("/confirmParticipation")
-  public ResponseEntity<String> confirmParticipation(@RequestBody ConfirmApplicationDTO confirmation)
-          throws TimeUpException, DifferentStageException {
+  public ResponseEntity<String> confirmParticipation(
+      @RequestBody ConfirmApplicationDTO confirmation)
+      throws TimeUpException, DifferentStageException {
     trainingService.confirmTraining(confirmation.getEmployeeId(), confirmation.getDate());
     return new ResponseEntity<>(String.valueOf(Stage.PASSES_ENTRANCE_TEST),
         HttpStatus.OK);
@@ -44,9 +48,20 @@ public class TrainingController {
 
   @PostMapping("/refuseParticipation")
   public ResponseEntity<String> refuseParticipation(@RequestBody RefuseApplicationDTO rejection)
-          throws DifferentStageException, TimeUpException {
+      throws DifferentStageException, TimeUpException {
     trainingService.refuseTraining(rejection.getId(), rejection.getReason(), rejection.getDate());
     return new ResponseEntity<>(rejection.getReason(), HttpStatus.OK);
+  }
+
+  @PostMapping("/takeEntranceTest/{employeeId}")
+  public ResponseEntity<String> takeEntryTest(@PathVariable Long employeeId,
+      @RequestBody TestDTO testDTO)
+      throws DifferentStageException, TestTypeException, TimeUpException {
+    if (trainingService.entryTest(employeeId, testDTO)) {
+      return new ResponseEntity<>(String.valueOf(Stage.STUDYING), HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>(String.valueOf(Stage.FAILED_ENTRANCE_TEST), HttpStatus.OK);
+    }
   }
 
   @ExceptionHandler(TimeUpException.class)
