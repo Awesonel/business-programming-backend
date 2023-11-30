@@ -31,4 +31,21 @@ public class Employee {
   private String reasonForRefuseTraining;
   private boolean isActive;
 
+  public Employee(String employeeName,
+                  String employeeSurname,
+                  String employeePatronymic,
+                  String employeeJobTitle,
+                  String project,
+                  String trainingPurpose,
+                  Leader leader) {
+    name = employeeName;
+    surname = employeeSurname;
+    patronymic = employeePatronymic;
+    jobTitle = employeeJobTitle;
+    this.project = project;
+    this.trainingPurpose = trainingPurpose;
+    this.leader = leader;
+    stage = Stage.WAITING_APPLICATION_TRAINING;
+    isActive = true;
+  }
 }

@@ -1,10 +1,16 @@
 package ru.spbu.project.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.spbu.project.models.Leader;
 
+import java.util.List;
+
 @Repository
 public interface LeaderRepository extends JpaRepository<Leader, Long> {
+
+  @Query("select e from Leader e where e.surname = ?1 and e.name = ?2 and e.patronymic = ?3 and e.jobTitle = ?4")
+  List<Leader> findByData(String surname, String name, String patronymic, String jobTitle);
 
 }
