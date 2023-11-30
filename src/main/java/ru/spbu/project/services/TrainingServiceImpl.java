@@ -62,8 +62,14 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   @Override
-  public void refuseTraining(Long employeeID, LocalDate date) throws TimeUpException {
-    // TODO: 30.11.2023
+  public void refuseTraining(Long employeeID, String reason, LocalDate date) throws StageDifferent {
+    // TODO: 30.11.2023 Проверка времени!!!
+    Employee employee = employeeService.findEmployeeByID(employeeID);
+    if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
+      throw new StageDifferent("The employee is at a different stage. Current stage: " + employee.getStage());
+    }
+    employee.setStage(Stage.PASSES_ENTRANCE_TEST);
+    employeeRepository.save(employee);
   }
 
   private void checkInvitationTime(LocalDate startTime, LocalDate currentDate) throws TimeUpException {
@@ -74,3 +80,4 @@ public class TrainingServiceImpl implements TrainingService {
     }
   }
 }
+
