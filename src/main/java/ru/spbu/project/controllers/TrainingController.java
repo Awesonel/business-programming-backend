@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.spbu.project.models.dto.RejectApplicationDTO;
+import ru.spbu.project.models.dto.ConfirmApplicationDTO;
+import ru.spbu.project.models.dto.RefuseApplicationDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.enums.Stage;
 import ru.spbu.project.models.exceptions.DifferentStageException;
@@ -34,16 +35,15 @@ public class TrainingController {
   }
 
   @PostMapping("/confirmParticipation/{employeeId}")
-  public ResponseEntity<String> confirmParticipation(@PathVariable Long employeeId, @RequestBody
-  LocalDate localDate)
+  public ResponseEntity<String> confirmParticipation(@RequestBody ConfirmApplicationDTO confirmation)
           throws TimeUpException, DifferentStageException {
-    trainingService.confirmTraining(employeeId, localDate);
+    trainingService.confirmTraining(confirmation.getEmployeeId(), confirmation.getDate());
     return new ResponseEntity<>(String.valueOf(Stage.PASSES_ENTRANCE_TEST),
         HttpStatus.OK);
   }
 
   @PostMapping("/refuseParticipation")
-  public ResponseEntity<String> refuseParticipation(@RequestBody RejectApplicationDTO rejection)
+  public ResponseEntity<String> refuseParticipation(@RequestBody RefuseApplicationDTO rejection)
           throws DifferentStageException, TimeUpException {
     trainingService.refuseTraining(rejection.getId(), rejection.getReason(), rejection.getDate());
     return new ResponseEntity<>(rejection.getReason(), HttpStatus.OK);
