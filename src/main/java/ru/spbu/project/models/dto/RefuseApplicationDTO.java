@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RejectApplicationDTO {
+public class RefuseApplicationDTO {
   Long id;
   String reason;
   LocalDate date;
