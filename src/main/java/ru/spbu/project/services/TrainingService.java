@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.exceptions.StageDifferent;
 import ru.spbu.project.models.exceptions.TimeUpException;
+import java.time.LocalDate;
 
 public interface TrainingService {
   long applyForTraining(TrainingApplicationDTO applicationDTO);

@@ -6,6 +6,7 @@ import ru.spbu.project.repositories.EmployeeRepository;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService{
+  
   final EmployeeRepository employeeRepository;
 
   public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
@@ -14,8 +15,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 
   public Employee findEmployeeByID(Long employeeID) {
     return employeeRepository.findById(employeeID).orElseThrow(
-        () -> new IllegalArgumentException("There is no employee with id: " + employeeID)
+            () -> new IllegalArgumentException("There is no employee with id: " + employeeID)
     );
   }
-
 }
