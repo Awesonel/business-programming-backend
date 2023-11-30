@@ -19,4 +19,12 @@ public class Leader {
   private String surname;
   private String patronymic;
   private String jobTitle;
+
+
+  public Leader(String leaderName, String leaderSurname, String leaderPatronymic, String leaderJobTitle) {
+    name = leaderName;
+    surname = leaderSurname;
+    patronymic = leaderPatronymic;
+    jobTitle = leaderJobTitle;
+  }
 }
