@@ -53,7 +53,7 @@ public class TrainingServiceImpl implements TrainingService {
   @Override
   public void confirmTraining(Long employeeId, LocalDate date) throws TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
-    checkInvitationTime(employee.getStartTime(), date);
+    checkInvitationTime(employee, date);
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException("The employee is at a different stage. Current stage: " + employee.getStage());
     }
@@ -65,17 +65,21 @@ public class TrainingServiceImpl implements TrainingService {
   @Override
   public void refuseTraining(Long employeeID, String reason, LocalDate date) throws DifferentStageException, TimeUpException {
     Employee employee = employeeService.findEmployeeByID(employeeID);
-    checkInvitationTime(employee.getStartTime(), date);
+    checkInvitationTime(employee, date);
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException("The employee is at a different stage. Current stage: " + employee.getStage());
     }
+    employee.setActive(false);
+    employee.setReasonForRefuseTraining(reason);
     employee.setStage(Stage.REFUSAL_APPLICATION);
     employeeRepository.save(employee);
   }
 
-  private void checkInvitationTime(LocalDate startTime, LocalDate currentDate) throws TimeUpException {
-    long timePassed = ChronoUnit.DAYS.between(currentDate, startTime);
+  private void checkInvitationTime(Employee employee, LocalDate currentDate) throws TimeUpException {
+    long timePassed = ChronoUnit.DAYS.between(employee.getStartTime(), currentDate);
     if (timePassed > INVITATION_TIME_LIMIT) {
+      employee.setActive(false);
+      employeeRepository.save(employee);
       throw new TimeUpException("It is possible to answer application in " + INVITATION_TIME_LIMIT
               + " days," + " but " + timePassed + " days were passed");
     }
