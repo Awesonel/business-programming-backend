@@ -30,8 +30,8 @@ public class TrainingServiceImpl implements TrainingService {
   @Override
   public long applyForTraining(TrainingApplicationDTO applicationDTO) {
     List<Leader> leaders = leaderRepository.findByData(
-            applicationDTO.getLeaderName(),
             applicationDTO.getLeaderSurname(),
+            applicationDTO.getLeaderName(),
             applicationDTO.getLeaderPatronymic(),
             applicationDTO.getLeaderJobTitle());
     Leader leader;
