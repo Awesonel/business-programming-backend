@@ -1,13 +1,13 @@
-package ru.spbu.businessprojectanother;
+package ru.spbu.project;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BusinessProjectAnotherApplication {
+public class Application {
 
   public static void main(String[] args) {
-    SpringApplication.run(BusinessProjectAnotherApplication.class, args);
+    SpringApplication.run(Application.class, args);
   }
 
 }
