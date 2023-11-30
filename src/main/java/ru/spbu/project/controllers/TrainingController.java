@@ -34,7 +34,7 @@ public class TrainingController {
     return new ResponseEntity<>(id, HttpStatus.OK);
   }
 
-  @PostMapping("/confirmParticipation/{employeeId}")
+  @PostMapping("/confirmParticipation")
   public ResponseEntity<String> confirmParticipation(@RequestBody ConfirmApplicationDTO confirmation)
           throws TimeUpException, DifferentStageException {
     trainingService.confirmTraining(confirmation.getEmployeeId(), confirmation.getDate());
