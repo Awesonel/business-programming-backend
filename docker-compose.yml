@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:14.8-alpine3.18
     environment:
-      POSTGRES_DB: "db"
+      POSTGRES_DB: "database"
       POSTGRES_USER: "db_user"
       POSTGRES_PASSWORD: "123"
       PGDATA: "/var/lib/postgresql/data/pgdata"
@@ -23,7 +23,7 @@ services:
       - postgres
     environment:
       - SERVER_PORT = 8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/database
 
 volumes:
   db-data:
