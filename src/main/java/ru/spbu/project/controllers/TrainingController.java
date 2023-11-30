@@ -65,12 +65,18 @@ public class TrainingController {
   }
 
   @ExceptionHandler(TimeUpException.class)
-  public ResponseEntity<ErrorMessage> timeUp(TimeUpException exception) {
+  public ResponseEntity<ErrorMessage> timeUpExceptionHandler(TimeUpException exception) {
     return ResponseEntity.status(HttpStatus.OK).body(new ErrorMessage(exception.getMessage()));
   }
 
   @ExceptionHandler(DifferentStageException.class)
-  public ResponseEntity<ErrorMessage> stageDifferent(DifferentStageException exception) {
+  public ResponseEntity<ErrorMessage> stageDifferentExceptionHandler(DifferentStageException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(new ErrorMessage(exception.getMessage()));
+  }
+
+  @ExceptionHandler(TestTypeException.class)
+  public ResponseEntity<ErrorMessage> testTypeExceptionHandler(TestTypeException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(new ErrorMessage(exception.getMessage()));
   }
