@@ -40,10 +40,10 @@ public class TrainingServiceImpl implements TrainingService {
   @Override
   public long applyForTraining(TrainingApplicationDTO applicationDTO) {
     List<Leader> leaders = leaderRepository.findByData(
-        applicationDTO.getLeaderName(),
-        applicationDTO.getLeaderSurname(),
-        applicationDTO.getLeaderPatronymic(),
-        applicationDTO.getLeaderJobTitle());
+            applicationDTO.getLeaderSurname(),
+            applicationDTO.getLeaderName(),
+            applicationDTO.getLeaderPatronymic(),
+            applicationDTO.getLeaderJobTitle());
     Leader leader;
     if (leaders.isEmpty()) {
       leader = new Leader(applicationDTO.getLeaderName(), applicationDTO.getLeaderSurname(),
