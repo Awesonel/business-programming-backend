@@ -4,6 +4,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.spbu.project.models.Employee;
@@ -23,6 +25,12 @@ public class EmployeeController {
   public ResponseEntity<List<Employee>> getParticipants() {
     List<Employee> employeeList = employeeRepository.findAll();
     return new ResponseEntity<>(employeeList, HttpStatus.OK);
+  }
+
+  @PutMapping("/employeeChange")
+  public ResponseEntity<Employee> employeeChange(@RequestBody Employee employee) {
+    employeeRepository.save(employee);
+    return new ResponseEntity<>(employee, HttpStatus.OK);
   }
 }
 
