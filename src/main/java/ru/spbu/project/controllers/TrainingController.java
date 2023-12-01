@@ -62,7 +62,7 @@ public class TrainingController {
     }
   }
 
-  @PostMapping("/take-module-test")
+  @PostMapping("/take-module-test/{employeeId}")
   public ResponseEntity<String> takeModuleTest(@PathVariable Long employeeId,
       @RequestBody TestDTO moduleTest)
       throws TimeUpException, DifferentStageException, TestTypeException {
@@ -73,7 +73,7 @@ public class TrainingController {
     }
   }
 
-  @PostMapping("/take-practice-task")
+  @PostMapping("/take-practice-task/{employeeId}")
   public ResponseEntity<String> takePracticeTask(@PathVariable Long employeeId,
       @RequestBody TestDTO practiceTask)
       throws TimeUpException, DifferentStageException, TestTypeException {
