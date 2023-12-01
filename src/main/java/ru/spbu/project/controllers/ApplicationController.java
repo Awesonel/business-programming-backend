@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/application")
 public class ApplicationController {
 
-  @GetMapping("/check")
+  @GetMapping("")
   public ResponseEntity<String> checkApp() {
     return new ResponseEntity<>("Server is running.", HttpStatus.OK);
   }
