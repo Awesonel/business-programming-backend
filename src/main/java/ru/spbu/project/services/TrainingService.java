@@ -15,7 +15,7 @@ public interface TrainingService {
 
   void refuseTraining(Long employeeId, String reason, LocalDate date) throws DifferentStageException, TimeUpException;
 
-  boolean entryTest(Long employeeId, TestDTO testDTO)
+  boolean takeEntryTest(Long employeeId, TestDTO testDTO)
           throws TimeUpException, DifferentStageException, TestTypeException;
 
   boolean takeModuleTest(Long employeeId, TestDTO moduleTest)

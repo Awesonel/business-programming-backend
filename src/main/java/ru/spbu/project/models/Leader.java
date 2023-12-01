@@ -22,9 +22,9 @@ public class Leader {
 
 
   public Leader(String leaderName, String leaderSurname, String leaderPatronymic, String leaderJobTitle) {
-    name = leaderName;
-    surname = leaderSurname;
-    patronymic = leaderPatronymic;
-    jobTitle = leaderJobTitle;
+    this.name = leaderName;
+    this.surname = leaderSurname;
+    this.patronymic = leaderPatronymic;
+    this.jobTitle = leaderJobTitle;
   }
 }

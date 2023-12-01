@@ -29,13 +29,13 @@ public class TrainingController {
     this.trainingService = tS;
   }
 
-  @PostMapping("/submitApplication")
+  @PostMapping("/submit-application")
   public ResponseEntity<Long> submitApplication(@RequestBody TrainingApplicationDTO request) {
     long id = trainingService.applyForTraining(request);
     return new ResponseEntity<>(id, HttpStatus.OK);
   }
 
-  @PostMapping("/confirmParticipation")
+  @PostMapping("/confirm-participation")
   public ResponseEntity<String> confirmParticipation(
       @RequestBody ConfirmApplicationDTO confirmation)
       throws TimeUpException, DifferentStageException {
@@ -44,21 +44,43 @@ public class TrainingController {
         HttpStatus.OK);
   }
 
-  @PostMapping("/refuseParticipation")
+  @PostMapping("/refuse-participation")
   public ResponseEntity<String> refuseParticipation(@RequestBody RefuseApplicationDTO rejection)
       throws DifferentStageException, TimeUpException {
     trainingService.refuseTraining(rejection.getId(), rejection.getReason(), rejection.getDate());
     return new ResponseEntity<>(rejection.getReason(), HttpStatus.OK);
   }
 
-  @PostMapping("/takeEntranceTest/{employeeId}")
+  @PostMapping("/take-entrance-test/{employeeId}")
   public ResponseEntity<String> takeEntryTest(@PathVariable Long employeeId,
       @RequestBody TestDTO testDTO)
       throws DifferentStageException, TestTypeException, TimeUpException {
-    if (trainingService.entryTest(employeeId, testDTO)) {
+    if (trainingService.takeEntryTest(employeeId, testDTO)) {
       return new ResponseEntity<>(String.valueOf(Stage.STUDYING), HttpStatus.OK);
     } else {
       return new ResponseEntity<>(String.valueOf(Stage.FAILED_ENTRANCE_TEST), HttpStatus.OK);
+    }
+  }
+
+  @PostMapping("/take-module-test")
+  public ResponseEntity<String> takeModuleTest(@PathVariable Long employeeId,
+      @RequestBody TestDTO moduleTest)
+      throws TimeUpException, DifferentStageException, TestTypeException {
+    if (trainingService.takeModuleTest(employeeId, moduleTest)) {
+      return new ResponseEntity<>("Module test passed.", HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>("Module test failed.", HttpStatus.OK);
+    }
+  }
+
+  @PostMapping("/take-practice-task")
+  public ResponseEntity<String> takePracticeTask(@PathVariable Long employeeId,
+      @RequestBody TestDTO practiceTask)
+      throws TimeUpException, DifferentStageException, TestTypeException {
+    if (trainingService.takePracticeTask(employeeId, practiceTask)) {
+      return new ResponseEntity<>("Practice task passed.", HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>("Practice task failed.", HttpStatus.OK);
     }
   }
 
@@ -68,7 +90,8 @@ public class TrainingController {
   }
 
   @ExceptionHandler(DifferentStageException.class)
-  public ResponseEntity<ErrorMessage> stageDifferentExceptionHandler(DifferentStageException exception) {
+  public ResponseEntity<ErrorMessage> stageDifferentExceptionHandler(
+      DifferentStageException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(new ErrorMessage(exception.getMessage()));
   }
@@ -77,5 +100,11 @@ public class TrainingController {
   public ResponseEntity<ErrorMessage> testTypeExceptionHandler(TestTypeException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(new ErrorMessage(exception.getMessage()));
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorMessage> illegalArgumentException(IllegalArgumentException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(new ErrorMessage("There is no employee/leader with this id."));
   }
 }
