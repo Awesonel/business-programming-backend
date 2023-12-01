@@ -38,14 +38,14 @@ public class Employee {
                   String project,
                   String trainingPurpose,
                   Leader leader) {
-    name = employeeName;
-    surname = employeeSurname;
-    patronymic = employeePatronymic;
-    jobTitle = employeeJobTitle;
+    this.name = employeeName;
+    this.surname = employeeSurname;
+    this.patronymic = employeePatronymic;
+    this.jobTitle = employeeJobTitle;
     this.project = project;
     this.trainingPurpose = trainingPurpose;
     this.leader = leader;
-    stage = Stage.WAITING_APPLICATION_TRAINING;
-    isActive = true;
+    this.stage = Stage.WAITING_APPLICATION_TRAINING;
+    this.isActive = true;
   }
 }

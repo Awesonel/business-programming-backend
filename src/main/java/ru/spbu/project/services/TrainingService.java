@@ -11,6 +11,6 @@ public interface TrainingService {
   long applyForTraining(TrainingApplicationDTO applicationDTO);
   void confirmTraining(Long employeeId, LocalDate date) throws TimeUpException, DifferentStageException;
   void refuseTraining(Long employeeId, String reason, LocalDate date) throws DifferentStageException, TimeUpException;
-  boolean entryTest(Long employeeId, TestDTO testDTO)
+  boolean takeEntryTest(Long employeeId, TestDTO testDTO)
       throws TimeUpException, DifferentStageException, TestTypeException;
 }
