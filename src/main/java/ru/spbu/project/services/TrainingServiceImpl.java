@@ -165,7 +165,8 @@ public class TrainingServiceImpl implements TrainingService {
     if (!isModuleTest(moduleTest.getTestType())) {
       throw new TestTypeException("Test type isn't MODULE_TEST!");
     }
-    // добавить проверку на время <--------------------------HERE------------------------------
+    checkTime(employee, employee.getStartTime(), moduleTest.getDate(),
+            STUDY_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, moduleTest.getTestType(), moduleTest.getScore() / 20,
             moduleTest.getDate());
     testRepository.save(test);
@@ -185,7 +186,8 @@ public class TrainingServiceImpl implements TrainingService {
     if (!isPracticeTaskTest(practiceTask.getTestType())) {
       throw new TestTypeException("Test type isn't PRACTICE_TASK!");
     }
-    // добавить проверку на время <--------------------------HERE------------------------------
+    checkTime(employee, employee.getStartTime(), practiceTask.getDate(),
+            STUDY_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, practiceTask.getTestType(), practiceTask.getScore() / 20,
             practiceTask.getDate());
     testRepository.save(test);
