@@ -29,5 +29,11 @@ public class EmployeeController {
     List<Employee> employeeList = employeeRepository.findByStage(stage);
     return new ResponseEntity<>(employeeList, HttpStatus.OK);
   }
+
+  @PutMapping("/employeeChange")
+  public ResponseEntity<Employee> changeEmployee(@RequestBody Employee employee) {
+    employeeRepository.save(employee);
+    return new ResponseEntity<>(employee, HttpStatus.OK);
+  }
 }
 
