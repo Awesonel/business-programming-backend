@@ -29,13 +29,13 @@ public class TrainingController {
     this.trainingService = tS;
   }
 
-  @PostMapping("/submitApplication")
+  @PostMapping("/submit-application")
   public ResponseEntity<Long> submitApplication(@RequestBody TrainingApplicationDTO request) {
     long id = trainingService.applyForTraining(request);
     return new ResponseEntity<>(id, HttpStatus.OK);
   }
 
-  @PostMapping("/confirmParticipation")
+  @PostMapping("/confirm-participation")
   public ResponseEntity<String> confirmParticipation(
       @RequestBody ConfirmApplicationDTO confirmation)
       throws TimeUpException, DifferentStageException {
@@ -44,14 +44,14 @@ public class TrainingController {
         HttpStatus.OK);
   }
 
-  @PostMapping("/refuseParticipation")
+  @PostMapping("/refuse-participation")
   public ResponseEntity<String> refuseParticipation(@RequestBody RefuseApplicationDTO rejection)
       throws DifferentStageException, TimeUpException {
     trainingService.refuseTraining(rejection.getId(), rejection.getReason(), rejection.getDate());
     return new ResponseEntity<>(rejection.getReason(), HttpStatus.OK);
   }
 
-  @PostMapping("/takeEntranceTest/{employeeId}")
+  @PostMapping("/take-entrance-test/{employeeId}")
   public ResponseEntity<String> takeEntryTest(@PathVariable Long employeeId,
       @RequestBody TestDTO testDTO)
       throws DifferentStageException, TestTypeException, TimeUpException {
