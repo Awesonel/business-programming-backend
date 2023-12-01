@@ -103,7 +103,7 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   @Override
-  public boolean entryTest(Long employeeID, TestDTO testDTO)
+  public boolean takeEntryTest(Long employeeID, TestDTO testDTO)
       throws TimeUpException, DifferentStageException, TestTypeException {
     Employee employee = employeeService.findEmployeeByID(employeeID);
     if (!employee.getStage().equals(Stage.PASSES_ENTRANCE_TEST)) {
@@ -127,13 +127,15 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   @Override
-  public void takeModuleTest(Long employeeId, TestDTO moduleTest) throws TimeUpException, DifferentStageException, TestTypeException {
+  public boolean takeModuleTest(Long employeeId, TestDTO moduleTest) throws TimeUpException, DifferentStageException, TestTypeException {
     // TODO: 01.12.2023
+    return true;
   }
 
   @Override
-  public void takePracticeTask(Long employeeId, TestDTO practiceTask) throws TimeUpException, DifferentStageException, TestTypeException {
+  public boolean takePracticeTask(Long employeeId, TestDTO practiceTask) throws TimeUpException, DifferentStageException, TestTypeException {
     // TODO: 01.12.2023
+    return true;
   }
 
   private void checkEntryTestTime(Employee employee, LocalDate date) throws TimeUpException {
