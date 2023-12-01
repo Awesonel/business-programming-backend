@@ -126,6 +126,16 @@ public class TrainingServiceImpl implements TrainingService {
     return test.getScorePercent() >= 0.8;
   }
 
+  @Override
+  public void takeModuleTest(Long employeeId, TestDTO moduleTest) throws TimeUpException, DifferentStageException, TestTypeException {
+    // TODO: 01.12.2023
+  }
+
+  @Override
+  public void takePracticeTask(Long employeeId, TestDTO practiceTask) throws TimeUpException, DifferentStageException, TestTypeException {
+    // TODO: 01.12.2023
+  }
+
   private void checkEntryTestTime(Employee employee, LocalDate date) throws TimeUpException {
     long timePassed = ChronoUnit.DAYS.between(employee.getStartTime(), date);
     if (timePassed > ENTRY_TEST_TIME_LIMIT) {
