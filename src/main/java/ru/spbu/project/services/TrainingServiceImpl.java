@@ -1,5 +1,6 @@
 package ru.spbu.project.services;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import ru.spbu.project.models.Employee;
@@ -168,14 +169,52 @@ public class TrainingServiceImpl implements TrainingService {
     }
   @Override
   public boolean takeModuleTest(Long employeeId, TestDTO moduleTest) throws TimeUpException, DifferentStageException, TestTypeException {
-    // TODO: 01.12.2023
-    return true;
+    Employee employee = employeeService.findEmployeeByID(employeeId);
+    if (!employee.getStage().equals(Stage.STUDYING)) {
+      throw new DifferentStageException("Employee can't pass this test");
+    }
+    if (isModuleTest(moduleTest.getTestType())) {
+      throw new TestTypeException("Test type isn't MODULE_TEST!");
+    }
+    // добавить проверку на время <--------------------------HERE------------------------------
+    Test test = new Test(employee, moduleTest.getTestType(), moduleTest.getScore() / 20,
+            moduleTest.getDate());
+    testRepository.save(test);
+    return test.getScorePercent() >= 0.8;
   }
 
   @Override
   public boolean takePracticeTask(Long employeeId, TestDTO practiceTask) throws TimeUpException, DifferentStageException, TestTypeException {
-    // TODO: 01.12.2023
-    return true;
+    Employee employee = employeeService.findEmployeeByID(employeeId);
+    if (!employee.getStage().equals(Stage.STUDYING)) {
+      throw new DifferentStageException("Employee can't pass this test");
+    }
+    if (isPracticeTaskTest(practiceTask.getTestType())) {
+      throw new TestTypeException("Test type isn't PRACTICE_TASK!");
+    }
+    // добавить проверку на время <--------------------------HERE------------------------------
+    Test test = new Test(employee, practiceTask.getTestType(), practiceTask.getScore() / 20,
+            practiceTask.getDate());
+    testRepository.save(test);
+    if (checkProgress(employee)) {
+      employee.setStage(Stage.EXPECTS_PRODUCTION_PRACTICE);
+      employeeRepository.save(employee);
+    }
+    return test.getScorePercent() >= 0.8;
+  }
+
+  private boolean isModuleTest(TestType testType) {
+    return switch (testType) {
+      case ENTRY, PRACTICE_TASK_1, PRACTICE_TASK_2 -> false;
+      case MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_8 -> true;
+    };
+  }
+
+  private boolean isPracticeTaskTest(TestType testType) {
+    return switch (testType) {
+      case ENTRY, MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_8 -> false;
+      case PRACTICE_TASK_1, PRACTICE_TASK_2 -> true;
+    };
   }
 
   private void checkEntryTestTime(Employee employee, LocalDate date) throws TimeUpException {
@@ -187,6 +226,10 @@ public class TrainingServiceImpl implements TrainingService {
       throw new TimeUpException("It is possible to pass test in " + ENTRY_TEST_TIME_LIMIT
           + " days," + " but " + timePassed + " days were passed");
     }
+  }
+
+  public boolean checkProgress(Employee employee) {
+    throw new NotImplementedException("Not implemented");
   }
 }
 
