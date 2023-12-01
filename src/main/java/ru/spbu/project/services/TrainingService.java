@@ -18,9 +18,9 @@ public interface TrainingService {
   boolean entryTest(Long employeeId, TestDTO testDTO)
           throws TimeUpException, DifferentStageException, TestTypeException;
 
-  void takeModuleTest(Long employeeId, TestDTO moduleTest)
+  boolean takeModuleTest(Long employeeId, TestDTO moduleTest)
           throws TimeUpException, DifferentStageException, TestTypeException;
 
-  void takePracticeTask(Long employeeId, TestDTO practiceTask)
+  boolean takePracticeTask(Long employeeId, TestDTO practiceTask)
           throws TimeUpException, DifferentStageException, TestTypeException;
 }
