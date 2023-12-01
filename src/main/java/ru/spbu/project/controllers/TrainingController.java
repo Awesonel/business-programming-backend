@@ -101,4 +101,10 @@ public class TrainingController {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(new ErrorMessage(exception.getMessage()));
   }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorMessage> illegalArgumentException(IllegalArgumentException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(new ErrorMessage("There is no employee/leader with this id."));
+  }
 }
