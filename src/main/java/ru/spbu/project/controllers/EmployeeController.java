@@ -9,7 +9,7 @@ import ru.spbu.project.models.enums.Stage;
 import ru.spbu.project.repositories.EmployeeRepository;
 
 @RestController
-@RequestMapping("/api/employee")
+@RequestMapping("/api/employees")
 public class EmployeeController {
 
   private final EmployeeRepository employeeRepository;
@@ -18,20 +18,20 @@ public class EmployeeController {
     this.employeeRepository = employeeRepository;
   }
 
-  @GetMapping("/all")
+  @GetMapping("")
   public ResponseEntity<List<Employee>> getParticipants() {
     List<Employee> employeeList = employeeRepository.findAll();
     return new ResponseEntity<>(employeeList, HttpStatus.OK);
   }
 
-  @GetMapping("/byStage")
+  @GetMapping("/")
   public ResponseEntity<List<Employee>> getAllByStage(@RequestParam Stage stage) {
     List<Employee> employeeList = employeeRepository.findByStage(stage);
     return new ResponseEntity<>(employeeList, HttpStatus.OK);
   }
 
-  @PutMapping("/employeeChange")
-  public ResponseEntity<Employee> changeEmployee(@RequestBody Employee employee) {
+  @PutMapping("/{employee}")
+  public ResponseEntity<Employee> changeEmployee(@PathVariable Employee employee) {
     employeeRepository.save(employee);
     return new ResponseEntity<>(employee, HttpStatus.OK);
   }

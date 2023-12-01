@@ -166,6 +166,16 @@ public class TrainingServiceImpl implements TrainingService {
       throw new TimeUpException("It is possible to answer application in " + INVITATION_TIME_LIMIT
           + " days," + " but " + timePassed + " days were passed");
     }
+  @Override
+  public boolean takeModuleTest(Long employeeId, TestDTO moduleTest) throws TimeUpException, DifferentStageException, TestTypeException {
+    // TODO: 01.12.2023
+    return true;
+  }
+
+  @Override
+  public boolean takePracticeTask(Long employeeId, TestDTO practiceTask) throws TimeUpException, DifferentStageException, TestTypeException {
+    // TODO: 01.12.2023
+    return true;
   }
 
   private void checkEntryTestTime(Employee employee, LocalDate date) throws TimeUpException {
