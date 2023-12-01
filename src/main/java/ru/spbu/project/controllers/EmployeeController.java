@@ -30,7 +30,7 @@ public class EmployeeController {
     return new ResponseEntity<>(employeeList, HttpStatus.OK);
   }
 
-  @PutMapping("/changeEmployee")
+  @PutMapping("/employeeChange")
   public ResponseEntity<Employee> changeEmployee(@RequestBody Employee employee) {
     employeeRepository.save(employee);
     return new ResponseEntity<>(employee, HttpStatus.OK);
