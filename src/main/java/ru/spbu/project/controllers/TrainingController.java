@@ -95,6 +95,23 @@ public class TrainingController {
         HttpStatus.OK);
   }
 
+  @PostMapping("/direction-to-take-exam/{employeeId}")
+  public ResponseEntity<String> directionToTakeExam(@PathVariable Long employeeId)
+      throws TimeUpException, DifferentStageException {
+    trainingService.directionToTakeExam(employeeId);
+    return new ResponseEntity<>("The employee is sent to take the exam.", HttpStatus.OK);
+  }
+
+  @PostMapping("/take-exam/{employeeId}")
+  public ResponseEntity<String> takeExam(@PathVariable Long employeeId, @RequestBody Boolean result)
+      throws TimeUpException, DifferentStageException {
+    if (trainingService.takeExam(employeeId, true)) {
+      return new ResponseEntity<>("The employee passed the exam.", HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>("The employee failed the exam. Sent for retake.", HttpStatus.OK);
+    }
+  }
+
   @ExceptionHandler(TimeUpException.class)
   public ResponseEntity<ErrorMessage> timeUpExceptionHandler(TimeUpException exception) {
     return ResponseEntity.status(HttpStatus.OK).body(new ErrorMessage(exception.getMessage()));

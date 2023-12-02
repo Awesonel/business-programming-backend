@@ -32,7 +32,8 @@ public class TrainingServiceImpl implements TrainingService {
   static final int EXAM_TIME_LIMIT = 1;
 
   public TrainingServiceImpl(LeaderRepository leaderRepository,
-      EmployeeRepository employeeRepository, EmployeeService employeeService, TestRepository testRepository) {
+      EmployeeRepository employeeRepository, EmployeeService employeeService,
+      TestRepository testRepository) {
     this.leaderRepository = leaderRepository;
     this.employeeRepository = employeeRepository;
     this.employeeService = employeeService;
@@ -43,10 +44,10 @@ public class TrainingServiceImpl implements TrainingService {
   @Override
   public long applyForTraining(TrainingApplicationDTO applicationDTO) {
     List<Leader> leaders = leaderRepository.findByData(
-            applicationDTO.getLeaderSurname(),
-            applicationDTO.getLeaderName(),
-            applicationDTO.getLeaderPatronymic(),
-            applicationDTO.getLeaderJobTitle());
+        applicationDTO.getLeaderSurname(),
+        applicationDTO.getLeaderName(),
+        applicationDTO.getLeaderPatronymic(),
+        applicationDTO.getLeaderJobTitle());
     Leader leader;
     if (leaders.isEmpty()) {
       leader = new Leader(applicationDTO.getLeaderName(), applicationDTO.getLeaderSurname(),
@@ -97,7 +98,7 @@ public class TrainingServiceImpl implements TrainingService {
 
   @Override
   public boolean takeEntryTest(Long employeeID, TestDTO testDTO)
-          throws TimeUpException, DifferentStageException, TestTypeException {
+      throws TimeUpException, DifferentStageException, TestTypeException {
     Employee employee = employeeService.findEmployeeByID(employeeID);
     if (!employee.getStage().equals(Stage.PASSES_ENTRANCE_TEST)) {
       throw new DifferentStageException("Employee can't pass this test");
@@ -107,9 +108,9 @@ public class TrainingServiceImpl implements TrainingService {
     }
     // Проверка стейджа по сути есть уже на чек тайме
     checkTime(employee, employee.getStartTime(), testDTO.getDate(),
-            ENTRY_TEST_TIME_LIMIT, employee.getStage());
+        ENTRY_TEST_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, testDTO.getTestType(), testDTO.getScore() / 20,
-            testDTO.getDate());
+        testDTO.getDate());
     if (test.getScorePercent() < 0.8) {
       employee.setStage(Stage.FAILED_ENTRANCE_TEST);
     } else {
@@ -122,35 +123,37 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   private void checkTime(Employee employee, LocalDate startDate,
-                         LocalDate curDate, long timeDif, Stage stage)
-          throws TimeUpException, DifferentStageException {
+      LocalDate curDate, long timeDif, Stage stage)
+      throws TimeUpException, DifferentStageException {
     long days = ChronoUnit.DAYS.between(curDate, startDate);
     if (days > timeDif) {
       employee.setActive(false);
       switch (stage) {
-        case  WAITING_APPLICATION_TRAINING -> {
+        case WAITING_APPLICATION_TRAINING -> {
           employee.setStage(Stage.REFUSAL_APPLICATION);
           employeeRepository.save(employee);
-          throw new TimeUpException("It is possible to answer application in " + INVITATION_TIME_LIMIT
+          throw new TimeUpException(
+              "It is possible to answer application in " + INVITATION_TIME_LIMIT
                   + " days," + " but " + days + " days were passed");
         }
         case PASSES_ENTRANCE_TEST -> {
           employee.setStage(Stage.FAILED_ENTRANCE_TEST);
           employeeRepository.save(employee);
-          throw new TimeUpException("It is possible to pass entrance test in " + ENTRY_TEST_TIME_LIMIT
+          throw new TimeUpException(
+              "It is possible to pass entrance test in " + ENTRY_TEST_TIME_LIMIT
                   + " days," + " but " + days + " days were passed");
         }
         case STUDYING -> {
           employee.setStage(Stage.FAILED_STUDYING);
           employeeRepository.save(employee);
           throw new TimeUpException("It is possible to study in " + STUDY_TIME_LIMIT
-                  + " days," + " but " + days + " days were passed");
+              + " days," + " but " + days + " days were passed");
         }
         case EXAM -> {
           employee.setStage(Stage.FAILED_EXAM);
           employeeRepository.save(employee);
           throw new TimeUpException("It is possible to pass exam in " + EXAM_TIME_LIMIT
-                  + " days," + " but " + days + " days were passed");
+              + " days," + " but " + days + " days were passed");
         }
         default -> throw new DifferentStageException("There is no such stage!");
       }
@@ -158,7 +161,8 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   @Override
-  public boolean takeModuleTest(Long employeeId, TestDTO moduleTest) throws TimeUpException, DifferentStageException, TestTypeException {
+  public boolean takeModuleTest(Long employeeId, TestDTO moduleTest)
+      throws TimeUpException, DifferentStageException, TestTypeException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     if (!employee.getStage().equals(Stage.STUDYING)) {
       throw new DifferentStageException("Employee can't pass this test");
@@ -167,9 +171,9 @@ public class TrainingServiceImpl implements TrainingService {
       throw new TestTypeException("Test type isn't MODULE_TEST!");
     }
     checkTime(employee, employee.getStartTime(), moduleTest.getDate(),
-            STUDY_TIME_LIMIT, employee.getStage());
+        STUDY_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, moduleTest.getTestType(), moduleTest.getScore() / 20,
-            moduleTest.getDate());
+        moduleTest.getDate());
     testRepository.save(test);
     if (checkProgress(employee)) {
       employee.setStage(Stage.EXPECTS_PRODUCTION_PRACTICE);
@@ -179,7 +183,8 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   @Override
-  public boolean takePracticeTask(Long employeeId, TestDTO practiceTask) throws TimeUpException, DifferentStageException, TestTypeException {
+  public boolean takePracticeTask(Long employeeId, TestDTO practiceTask)
+      throws TimeUpException, DifferentStageException, TestTypeException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     if (!employee.getStage().equals(Stage.STUDYING)) {
       throw new DifferentStageException("Employee can't pass this test");
@@ -188,9 +193,9 @@ public class TrainingServiceImpl implements TrainingService {
       throw new TestTypeException("Test type isn't PRACTICE_TASK!");
     }
     checkTime(employee, employee.getStartTime(), practiceTask.getDate(),
-            STUDY_TIME_LIMIT, employee.getStage());
+        STUDY_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, practiceTask.getTestType(), practiceTask.getScore() / 20,
-            practiceTask.getDate());
+        practiceTask.getDate());
     testRepository.save(test);
     if (checkProgress(employee)) {
       employee.setStage(Stage.EXPECTS_PRODUCTION_PRACTICE);
@@ -208,22 +213,23 @@ public class TrainingServiceImpl implements TrainingService {
 
   private boolean isPracticeTaskTest(TestType testType) {
     return switch (testType) {
-      case ENTRY, MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_8 -> false;
+      case ENTRY, MODULE_1, MODULE_2, MODULE_3, MODULE_4, MODULE_5, MODULE_6, MODULE_7, MODULE_8 ->
+          false;
       case PRACTICE_TASK_1, PRACTICE_TASK_2 -> true;
     };
   }
 
   public boolean checkProgress(Employee employee) {
     return (passedTest(employee, TestType.MODULE_1) &&
-            passedTest(employee, TestType.MODULE_2) &&
-            passedTest(employee, TestType.MODULE_3) &&
-            passedTest(employee, TestType.MODULE_4) &&
-            passedTest(employee, TestType.MODULE_5) &&
-            passedTest(employee, TestType.MODULE_6) &&
-            passedTest(employee, TestType.MODULE_7) &&
-            passedTest(employee, TestType.MODULE_8) &&
-            passedTest(employee, TestType.PRACTICE_TASK_1) &&
-            passedTest(employee, TestType.PRACTICE_TASK_2));
+        passedTest(employee, TestType.MODULE_2) &&
+        passedTest(employee, TestType.MODULE_3) &&
+        passedTest(employee, TestType.MODULE_4) &&
+        passedTest(employee, TestType.MODULE_5) &&
+        passedTest(employee, TestType.MODULE_6) &&
+        passedTest(employee, TestType.MODULE_7) &&
+        passedTest(employee, TestType.MODULE_8) &&
+        passedTest(employee, TestType.PRACTICE_TASK_1) &&
+        passedTest(employee, TestType.PRACTICE_TASK_2));
   }
 
   private boolean passedTest(Employee employee, TestType testType) {
@@ -239,6 +245,16 @@ public class TrainingServiceImpl implements TrainingService {
   public void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
       throws TimeUpException, DifferentStageException {
 
+  }
+
+  public void directionToTakeExam(Long employeeId) throws TimeUpException, DifferentStageException {
+
+  }
+
+  public boolean takeExam(Long employeeId, Boolean result)
+      throws TimeUpException, DifferentStageException {
+
+    return true;
   }
 }
 
