@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.spbu.project.models.Employee;
 import ru.spbu.project.models.Leader;
 import ru.spbu.project.models.Test;
+import ru.spbu.project.models.dto.ProductionPracticeDTO;
 import ru.spbu.project.models.dto.TestDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.enums.Stage;
@@ -233,6 +234,11 @@ public class TrainingServiceImpl implements TrainingService {
       }
     }
     return false;
+  }
+
+  public void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
+      throws TimeUpException, DifferentStageException {
+
   }
 }
 
