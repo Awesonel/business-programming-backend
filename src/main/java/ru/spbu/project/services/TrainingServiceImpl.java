@@ -69,12 +69,12 @@ public class TrainingServiceImpl implements TrainingService {
   public void confirmTraining(Long employeeId, LocalDate date)
       throws TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
-    checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
     // Проверка стейджа по сути есть уже на чек тайме
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException(
           "The employee is at a different stage. Current stage: " + employee.getStage());
     }
+    checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
     employee.setStage(Stage.PASSES_ENTRANCE_TEST);
     employee.setStartTime(date);
     employeeRepository.save(employee);
@@ -123,7 +123,10 @@ public class TrainingServiceImpl implements TrainingService {
   private void checkTime(Employee employee, LocalDate curDate,
                          long timeDif, Stage stage)
           throws TimeUpException, DifferentStageException {
-    long days = ChronoUnit.DAYS.between(curDate, employee.getStartTime());
+    long days = ChronoUnit.DAYS.between(employee.getStartTime(), curDate);
+    if (days < 0) {
+      throw new TimeUpException("Action in the past");
+    }
     if (days > timeDif) {
       employee.setActive(false);
       employeeRepository.save(employee);
