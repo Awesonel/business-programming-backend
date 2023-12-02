@@ -69,7 +69,7 @@ public class TrainingServiceImpl implements TrainingService {
   public void confirmTraining(Long employeeId, LocalDate date)
       throws TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
-    checkTime(employee, employee.getStartTime(), date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
+    checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
     // Проверка стейджа по сути есть уже на чек тайме
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException(
@@ -84,7 +84,7 @@ public class TrainingServiceImpl implements TrainingService {
   public void refuseTraining(Long employeeID, String reason, LocalDate date)
       throws DifferentStageException, TimeUpException {
     Employee employee = employeeService.findEmployeeByID(employeeID);
-    checkTime(employee, employee.getStartTime(), date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
+    checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
     // Проверка стейджа по сути есть уже на чек тайме
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException(
@@ -107,7 +107,7 @@ public class TrainingServiceImpl implements TrainingService {
       throw new TestTypeException("Test type isn't ENTRY!");
     }
     // Проверка стейджа по сути есть уже на чек тайме
-    checkTime(employee, employee.getStartTime(), testDTO.getDate(),
+    checkTime(employee,  testDTO.getDate(),
             ENTRY_TEST_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, testDTO.getTestType(), testDTO.getScore() / 20,
             testDTO.getDate());
@@ -122,11 +122,11 @@ public class TrainingServiceImpl implements TrainingService {
     return test.getScorePercent() >= 0.8;
   }
 
-  private void checkTime(Employee employee, LocalDate startDate,
-                         LocalDate curDate, long timeDif, Stage stage)
+  private void checkTime(Employee employee, LocalDate curDate,
+                         long timeDif, Stage stage)
           throws TimeUpException, DifferentStageException {
-    long days = ChronoUnit.DAYS.between(curDate, startDate);
-    if (days > timeDif) {
+    long days = ChronoUnit.DAYS.between(curDate, employee.getStartTime());
+    if (days < timeDif) {
       employee.setActive(false);
       employeeRepository.save(employee);
       switch (stage) {
@@ -165,8 +165,10 @@ public class TrainingServiceImpl implements TrainingService {
       employee.setActive(false);
       employeeRepository.save(employee);
       throw new TimeUpException("It is possible to answer application in " + INVITATION_TIME_LIMIT
-          + " days," + " but " + timePassed + " days were passed");
+              + " days," + " but " + timePassed + " days were passed");
     }
+  }
+
   @Override
   public boolean takeModuleTest(Long employeeId, TestDTO moduleTest) throws TimeUpException, DifferentStageException, TestTypeException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
