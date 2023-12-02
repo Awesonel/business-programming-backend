@@ -1,5 +1,6 @@
 package ru.spbu.project.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -28,12 +29,15 @@ public class EmployeeController {
   }
 
   @GetMapping("")
-  public ResponseEntity<List<Employee>> getParticipants(@RequestParam(required = false) Stage stage) {
+  public ResponseEntity<List<Employee>> getParticipants(@RequestParam(required = false) List<Stage> stages) {
     List<Employee> employeeList;
-    if (stage == null) {
+    if (stages.isEmpty()) {
       employeeList = employeeRepository.findAll();
     } else {
-      employeeList = employeeRepository.findByStage(stage);
+      employeeList = new ArrayList<>();
+      for (Stage stage: stages) {
+        employeeList.addAll(employeeRepository.findByStage(stage));
+      }
     }
     return new ResponseEntity<>(employeeList, HttpStatus.OK);
   }
