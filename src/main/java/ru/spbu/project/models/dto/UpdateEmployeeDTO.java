@@ -14,12 +14,12 @@ public class UpdateEmployeeDTO {
   private String name;
   private String surname;
   private String patronymic;
-  private String jobTitle;
+  private String job;
   private String project;
-  private String trainingPurpose;
+  private String purpose;
   private Stage stage;
-  private Long leaderId;
-  private LocalDate startTime;
-  private String reasonForRefuseTraining;
+  private Long leader;
+  private LocalDate start;
+  private String reason;
   private boolean isActive;
 }

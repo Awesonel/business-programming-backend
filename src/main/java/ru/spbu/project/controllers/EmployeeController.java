@@ -1,5 +1,6 @@
 package ru.spbu.project.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -28,12 +29,15 @@ public class EmployeeController {
   }
 
   @GetMapping("")
-  public ResponseEntity<List<Employee>> getParticipants(@RequestParam(required = false) Stage stage) {
+  public ResponseEntity<List<Employee>> getParticipants(@RequestParam(required = false) List<Stage> stages) {
     List<Employee> employeeList;
-    if (stage == null) {
+    if (stages.isEmpty()) {
       employeeList = employeeRepository.findAll();
     } else {
-      employeeList = employeeRepository.findByStage(stage);
+      employeeList = new ArrayList<>();
+      for (Stage stage: stages) {
+        employeeList.addAll(employeeRepository.findByStage(stage));
+      }
     }
     return new ResponseEntity<>(employeeList, HttpStatus.OK);
   }
@@ -41,17 +45,17 @@ public class EmployeeController {
   @PutMapping("/{id}")
   public ResponseEntity<String> changeEmployee(@PathVariable Long id, @RequestBody UpdateEmployeeDTO updateInfo) {
     Employee employee = employeeService.findEmployeeByID(id);
-    Leader leader = leaderRepository.findById(updateInfo.getLeaderId()).orElseThrow(() -> new IllegalArgumentException("There is no leader with id: " + updateInfo.getLeaderId()));
+    Leader leader = leaderRepository.findById(updateInfo.getLeader()).orElseThrow(() -> new IllegalArgumentException("There is no leader with id: " + updateInfo.getLeader()));
     employee.setName(updateInfo.getName());
     employee.setSurname(updateInfo.getSurname());
     employee.setPatronymic(updateInfo.getPatronymic());
-    employee.setJobTitle(updateInfo.getJobTitle());
+    employee.setJobTitle(updateInfo.getJob());
     employee.setProject(updateInfo.getProject());
-    employee.setTrainingPurpose(updateInfo.getTrainingPurpose());
+    employee.setTrainingPurpose(updateInfo.getPurpose());
     employee.setStage(updateInfo.getStage());
     employee.setLeader(leader);
-    employee.setStartTime(updateInfo.getStartTime());
-    employee.setReasonForRefuseTraining(updateInfo.getReasonForRefuseTraining());
+    employee.setStartTime(updateInfo.getStart());
+    employee.setReasonForRefuseTraining(updateInfo.getReason());
     employee.setActive(updateInfo.isActive());
     employeeRepository.save(employee);
     return new ResponseEntity<>("Employee info successfully changed", HttpStatus.valueOf(204));
