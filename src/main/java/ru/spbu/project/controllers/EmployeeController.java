@@ -73,5 +73,11 @@ public class EmployeeController {
     employeeRepository.save(employee);
     return new ResponseEntity<>("Employee info successfully changed", HttpStatus.valueOf(204));
   }
+
+  @GetMapping("/employee/{employeeId}")
+  public ResponseEntity<Employee> findEmployeeByID(@PathVariable Long employeeId) {
+    Employee employee = employeeService.findEmployeeByID(employeeId);
+    return new ResponseEntity<>(employee, HttpStatus.OK);
+  }
 }
 
