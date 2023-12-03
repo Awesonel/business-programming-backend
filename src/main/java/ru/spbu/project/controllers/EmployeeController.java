@@ -29,15 +29,28 @@ public class EmployeeController {
   }
 
   @GetMapping("")
-  public ResponseEntity<List<Employee>> getParticipants(@RequestParam(required = false) List<Stage> stages) {
+  public ResponseEntity<List<Employee>> getParticipants(
+          @RequestParam(required = false) List<Stage> stages,
+          @RequestParam(required = false) String search) {
     List<Employee> employeeList;
-    if (stages.isEmpty()) {
-      employeeList = employeeRepository.findAll();
-    } else {
+
+    boolean stagesNotEmpty = (stages != null && !stages.isEmpty());
+    boolean searchNotEmpty = (search != null);
+
+    if (stagesNotEmpty && searchNotEmpty) {
+      employeeList = new ArrayList<>();
+      for (Stage stage: stages) {
+        employeeList.addAll(employeeRepository.findByStageAndName(search, stage));
+      }
+    } else if (searchNotEmpty) {
+      employeeList = employeeRepository.searchByName(search);
+    } else if (stagesNotEmpty) {
       employeeList = new ArrayList<>();
       for (Stage stage: stages) {
         employeeList.addAll(employeeRepository.findByStage(stage));
       }
+    } else {
+      employeeList = employeeRepository.findAll();
     }
     return new ResponseEntity<>(employeeList, HttpStatus.OK);
   }
