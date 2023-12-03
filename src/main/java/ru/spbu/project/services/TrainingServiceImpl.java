@@ -69,7 +69,6 @@ public class TrainingServiceImpl implements TrainingService {
   public void confirmTraining(Long employeeId, LocalDate date)
       throws TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
-    // Проверка стейджа по сути есть уже на чек тайме
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException(
           "The employee is at a different stage. Current stage: " + employee.getStage());
@@ -171,8 +170,7 @@ public class TrainingServiceImpl implements TrainingService {
     if (!isModuleTest(moduleTest.getTestType())) {
       throw new TestTypeException("Test type isn't MODULE_TEST!");
     }
-    checkTime(employee, employee.getStartTime(), moduleTest.getDate(),
-        STUDY_TIME_LIMIT, employee.getStage());
+    checkTime(employee, moduleTest.getDate(), STUDY_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, moduleTest.getTestType(), moduleTest.getScore() / 20,
         moduleTest.getDate());
     testRepository.save(test);
@@ -193,7 +191,7 @@ public class TrainingServiceImpl implements TrainingService {
     if (!isPracticeTaskTest(practiceTask.getTestType())) {
       throw new TestTypeException("Test type isn't PRACTICE_TASK!");
     }
-    checkTime(employee, employee.getStartTime(), practiceTask.getDate(),
+    checkTime(employee, practiceTask.getDate(),
         STUDY_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, practiceTask.getTestType(), practiceTask.getScore() / 20,
         practiceTask.getDate());
