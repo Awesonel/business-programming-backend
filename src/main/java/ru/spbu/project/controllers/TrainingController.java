@@ -125,7 +125,7 @@ public class TrainingController {
     return new ResponseEntity<>(statistics, HttpStatus.OK);
   }
 
-  @PostMapping("/")
+  @PostMapping("/production-practice-result/{employeeId}")
   public ResponseEntity<String> productionPracticeResult(@PathVariable Long employeeId,
       @RequestBody Boolean result)
       throws IllegalArgumentException, TimeUpException, DifferentStageException {
