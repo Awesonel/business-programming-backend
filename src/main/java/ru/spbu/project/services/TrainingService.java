@@ -2,9 +2,14 @@ package ru.spbu.project.services;
 
 import java.time.LocalDate;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import ru.spbu.project.models.Employee;
 import ru.spbu.project.models.dto.ProductionPracticeDTO;
 import ru.spbu.project.models.dto.TestDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
+import ru.spbu.project.models.enums.Stage;
 import ru.spbu.project.models.exceptions.DifferentStageException;
 import ru.spbu.project.models.exceptions.TestTypeException;
 import ru.spbu.project.models.exceptions.TimeUpException;
@@ -34,4 +39,6 @@ public interface TrainingService {
   void directionToTakeExam(Long employeeId) throws TimeUpException, DifferentStageException;
 
   boolean takeExam(Long employeeId, Boolean result) throws TimeUpException, DifferentStageException;
+
+  HashMap<Stage, Integer> getFromPeriod(LocalDate startTime, LocalDate endTime);
 }
