@@ -1,8 +1,6 @@
 package ru.spbu.project.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +13,11 @@ import lombok.NoArgsConstructor;
 public class ProductionPractice {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
-
+  @ManyToOne
+  private Leader leader;
+  @OneToOne
+  private Employee employee;
+  private String project;
 }

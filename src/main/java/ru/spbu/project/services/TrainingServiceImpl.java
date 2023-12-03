@@ -243,16 +243,16 @@ public class TrainingServiceImpl implements TrainingService {
 
   public void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
       throws TimeUpException, DifferentStageException {
-
+    // TODO: 03.12.2023 отправка на практику
   }
 
   public void directionToTakeExam(Long employeeId) throws TimeUpException, DifferentStageException {
-
+    // TODO: 03.12.2023 отправка на экзамен
   }
 
   public boolean takeExam(Long employeeId, Boolean result)
       throws TimeUpException, DifferentStageException {
-
+    // TODO: 03.12.2023 сдача экзамена (возвращает true - сдал, false не сдал (не знаю, зачем))
     return true;
   }
 }
