@@ -1,6 +1,9 @@
 package ru.spbu.project.services;
 
 import org.hibernate.exception.DataException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import ru.spbu.project.models.Employee;
 import ru.spbu.project.models.Leader;
@@ -216,6 +219,8 @@ public class TrainingServiceImpl implements TrainingService {
     return test.getScorePercent() >= 0.8;
   }
 
+
+
   private boolean isModuleTest(TestType testType) {
     return switch (testType) {
       case ENTRY, PRACTICE_TASK_1, PRACTICE_TASK_2 -> false;
@@ -254,7 +259,39 @@ public class TrainingServiceImpl implements TrainingService {
     return false;
   }
 
-  //Переименовать в sendOnProductionPractice
+  @Override
+  public HashMap<Stage, Integer> getFromPeriod(LocalDate startTime, LocalDate endTime) {
+    List<Employee> employees = employeeRepository.findAll();
+    Integer studyingCounter = 0;
+    Integer expectsProductionPracticeCounter = 0;
+    Integer productionPracticeCounter = 0;
+    Integer examCounter = 0;
+    Integer failedCounter = 0;
+    Integer passedCounter = 0;
+
+    for (Employee employee : employees) {
+      if (startTime.isBefore(employee.getStartTime()) && endTime.isAfter(employee.getStartTime())) {
+        switch (employee.getStage()) {
+          case STUDYING -> studyingCounter++;
+          case EXPECTS_PRODUCTION_PRACTICE -> expectsProductionPracticeCounter++;
+          case PRODUCTION_PRACTICE -> productionPracticeCounter++;
+          case EXAM -> examCounter++;
+          case FAILED_EXAM -> failedCounter++;
+          case PASSED_EXAM -> passedCounter++;
+        }
+      }
+    }
+
+    HashMap<Stage, Integer> result = new HashMap<>();
+    result.put(Stage.STUDYING, studyingCounter);
+    result.put(Stage.EXPECTS_PRODUCTION_PRACTICE, expectsProductionPracticeCounter);
+    result.put(Stage.PRODUCTION_PRACTICE, productionPracticeCounter);
+    result.put(Stage.EXAM, examCounter);
+    result.put(Stage.FAILED_EXAM, failedCounter);
+    result.put(Stage.PASSED_EXAM, passedCounter);
+    return result;
+  }
+
   public void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
           throws TimeUpException, DifferentStageException, IllegalArgumentException {
     Employee employee = employeeService.findEmployeeByID(productionPracticeDTO.getEmployeeId());
