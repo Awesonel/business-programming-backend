@@ -31,6 +31,8 @@ public class Employee {
   private String reasonForRefuseTraining;
   private boolean isActive;
 
+  private Boolean examResult;
+
   public Employee(String employeeName,
                   String employeeSurname,
                   String employeePatronymic,

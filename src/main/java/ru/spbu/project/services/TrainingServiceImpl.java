@@ -1,8 +1,10 @@
 package ru.spbu.project.services;
 
+import org.hibernate.exception.DataException;
 import org.springframework.stereotype.Service;
 import ru.spbu.project.models.Employee;
 import ru.spbu.project.models.Leader;
+import ru.spbu.project.models.ProductionPractice;
 import ru.spbu.project.models.Test;
 import ru.spbu.project.models.dto.ProductionPracticeDTO;
 import ru.spbu.project.models.dto.TestDTO;
@@ -17,6 +19,9 @@ import ru.spbu.project.repositories.LeaderRepository;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
+
+import ru.spbu.project.repositories.ProductionPracticeRepository;
 import ru.spbu.project.repositories.TestRepository;
 
 @Service
@@ -26,6 +31,7 @@ public class TrainingServiceImpl implements TrainingService {
   final EmployeeRepository employeeRepository;
   final EmployeeService employeeService;
   final TestRepository testRepository;
+  final ProductionPracticeRepository productionPracticeRepository;
   static final int INVITATION_TIME_LIMIT = 3;
   static final int ENTRY_TEST_TIME_LIMIT = 5;
   static final int STUDY_TIME_LIMIT = 30;
@@ -33,11 +39,12 @@ public class TrainingServiceImpl implements TrainingService {
 
   public TrainingServiceImpl(LeaderRepository leaderRepository,
       EmployeeRepository employeeRepository, EmployeeService employeeService,
-      TestRepository testRepository) {
+      TestRepository testRepository, ProductionPracticeRepository productionPracticeRepository) {
     this.leaderRepository = leaderRepository;
     this.employeeRepository = employeeRepository;
     this.employeeService = employeeService;
     this.testRepository = testRepository;
+    this.productionPracticeRepository = productionPracticeRepository;
   }
 
 
@@ -117,6 +124,12 @@ public class TrainingServiceImpl implements TrainingService {
     employeeRepository.save(employee);
     testRepository.save(test);
     return test.getScorePercent() >= 0.8;
+  }
+
+  private void checkActionInPast(LocalDate startDate, LocalDate curDate) throws TimeUpException {
+    if (ChronoUnit.DAYS.between(startDate, curDate) < 0) {
+      throw new TimeUpException("Action in the past");
+    }
   }
 
   private void checkTime(Employee employee, LocalDate curDate,
@@ -241,19 +254,75 @@ public class TrainingServiceImpl implements TrainingService {
     return false;
   }
 
+  //Переименовать в sendOnProductionPractice
   public void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
-      throws TimeUpException, DifferentStageException {
-    // TODO: 03.12.2023 отправка на практику
+          throws TimeUpException, DifferentStageException, IllegalArgumentException {
+    Employee employee = employeeService.findEmployeeByID(productionPracticeDTO.getEmployeeId());
+    if (!employee.getStage().equals(Stage.EXPECTS_PRODUCTION_PRACTICE)) {
+      throw new DifferentStageException("Employee is not waiting for internship");
+    }
+    checkActionInPast(employee.getStartTime(), productionPracticeDTO.getDate());
+    Optional<Leader> optLeader = leaderRepository.findById(productionPracticeDTO.getLeader().getId());
+    if (optLeader.isEmpty()) {
+      leaderRepository.save(productionPracticeDTO.getLeader());
+    }
+    ProductionPractice practice = new ProductionPractice(productionPracticeDTO.getLeader(),
+            employee, productionPracticeDTO.getProject());
+    productionPracticeRepository.save(practice);
+    employee.setStage(Stage.PRODUCTION_PRACTICE);
+    employeeRepository.save(employee);
   }
 
-  public void directionToTakeExam(Long employeeId) throws TimeUpException, DifferentStageException {
-    // TODO: 03.12.2023 отправка на экзамен
+  public boolean productionPracticeResult(Long employeeId, Boolean result)
+          throws IllegalArgumentException, TimeUpException, DifferentStageException {
+    Employee employee = employeeService.findEmployeeByID(employeeId);
+    if (!employee.getStage().equals(Stage.PRODUCTION_PRACTICE)) {
+      throw new DifferentStageException("Employee is not on internship");
+    }
+    checkActionInPast(employee.getStartTime(), LocalDate.now());
+    ProductionPractice practice = productionPracticeRepository.findProductionPracticeByEmployee(employee).
+            orElseThrow(() -> new IllegalArgumentException("Chosen employee is not on internship"));
+    practice.setResult(result);
+    productionPracticeRepository.save(practice);
+    if (!result) {
+      employee.setStage(Stage.FAILED_PRODUCTION_PRACTICE);
+      employee.setActive(false);
+      employeeRepository.save(employee);
+    }
+    return result;
+  }
+
+  public void directionToTakeExam(Long employeeId)
+          throws TimeUpException, DifferentStageException, IllegalArgumentException {
+    Employee employee = employeeService.findEmployeeByID(employeeId);
+    if (!employee.getStage().equals(Stage.PRODUCTION_PRACTICE)) {
+      throw new DifferentStageException("Employee is not on internship");
+    }
+    ProductionPractice practice = productionPracticeRepository.findProductionPracticeByEmployee(employee).
+            orElseThrow(() -> new IllegalArgumentException("Chosen employee is not on internship"));
+    if (!practice.getResult()) {
+      throw new IllegalArgumentException("Employee didn't pass internship");
+    }
+    LocalDate date = LocalDate.now();
+    checkActionInPast(employee.getStartTime(), date);
+    employee.setStartTime(date);
+    employee.setStage(Stage.EXAM);
+    employeeRepository.save(employee);
   }
 
   public boolean takeExam(Long employeeId, Boolean result)
       throws TimeUpException, DifferentStageException {
-    // TODO: 03.12.2023 сдача экзамена (возвращает true - сдал, false не сдал (не знаю, зачем))
-    return true;
+    Employee employee = employeeService.findEmployeeByID(employeeId);
+    if (!employee.getStage().equals(Stage.EXAM)) {
+      throw new DifferentStageException("Employee is not passing exam");
+    }
+    checkTime(employee, LocalDate.now(), EXAM_TIME_LIMIT, Stage.EXAM);
+    employee.setExamResult(result);
+    employeeRepository.save(employee);
+    if (result) {
+      employee.setStage(Stage.PASSED_EXAM);
+    }
+    return result;
   }
 }
 

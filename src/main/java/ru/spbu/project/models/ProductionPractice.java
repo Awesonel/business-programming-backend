@@ -20,4 +20,11 @@ public class ProductionPractice {
   @OneToOne
   private Employee employee;
   private String project;
+  private Boolean result;
+
+  public ProductionPractice(Leader leader, Employee employee, String project) {
+    this.leader = leader;
+    this.employee = employee;
+    this.project = project;
+  }
 }
