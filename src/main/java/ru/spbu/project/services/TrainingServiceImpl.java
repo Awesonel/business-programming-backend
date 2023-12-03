@@ -1,7 +1,5 @@
 package ru.spbu.project.services;
 
-import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import ru.spbu.project.models.Employee;
 import ru.spbu.project.models.Leader;
@@ -71,12 +69,11 @@ public class TrainingServiceImpl implements TrainingService {
   public void confirmTraining(Long employeeId, LocalDate date)
       throws TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
-    checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
-    // Проверка стейджа по сути есть уже на чек тайме
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException(
           "The employee is at a different stage. Current stage: " + employee.getStage());
     }
+    checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
     employee.setStage(Stage.PASSES_ENTRANCE_TEST);
     employee.setStartTime(date);
     employeeRepository.save(employee);
@@ -86,12 +83,11 @@ public class TrainingServiceImpl implements TrainingService {
   public void refuseTraining(Long employeeID, String reason, LocalDate date)
       throws DifferentStageException, TimeUpException {
     Employee employee = employeeService.findEmployeeByID(employeeID);
-    checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
-    // Проверка стейджа по сути есть уже на чек тайме
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException(
           "The employee is at a different stage. Current stage: " + employee.getStage());
     }
+    checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
     employee.setActive(false);
     employee.setReasonForRefuseTraining(reason);
     employee.setStage(Stage.REFUSAL_APPLICATION);
@@ -108,11 +104,10 @@ public class TrainingServiceImpl implements TrainingService {
     if (!testDTO.getTestType().equals(TestType.ENTRY)) {
       throw new TestTypeException("Test type isn't ENTRY!");
     }
-    // Проверка стейджа по сути есть уже на чек тайме
     checkTime(employee,  testDTO.getDate(),
             ENTRY_TEST_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, testDTO.getTestType(), testDTO.getScore() / 20,
-            testDTO.getDate());
+        testDTO.getDate());
     if (test.getScorePercent() < 0.8) {
       employee.setStage(Stage.FAILED_ENTRANCE_TEST);
     } else {
@@ -127,47 +122,41 @@ public class TrainingServiceImpl implements TrainingService {
   private void checkTime(Employee employee, LocalDate curDate,
                          long timeDif, Stage stage)
           throws TimeUpException, DifferentStageException {
-    long days = ChronoUnit.DAYS.between(curDate, employee.getStartTime());
-    if (days < timeDif) {
+    long days = ChronoUnit.DAYS.between(employee.getStartTime(), curDate);
+    if (days < 0) {
+      throw new TimeUpException("Action in the past");
+    }
+    if (days > timeDif) {
       employee.setActive(false);
-      employeeRepository.save(employee);
       switch (stage) {
-        case  WAITING_APPLICATION_TRAINING -> {
+        case WAITING_APPLICATION_TRAINING -> {
           employee.setStage(Stage.REFUSAL_APPLICATION);
-          throw new TimeUpException("It is possible to answer application in " + INVITATION_TIME_LIMIT
+          employeeRepository.save(employee);
+          throw new TimeUpException(
+              "It is possible to answer application in " + INVITATION_TIME_LIMIT
                   + " days," + " but " + days + " days were passed");
         }
         case PASSES_ENTRANCE_TEST -> {
           employee.setStage(Stage.FAILED_ENTRANCE_TEST);
-          throw new TimeUpException("It is possible to pass entrance test in " + ENTRY_TEST_TIME_LIMIT
+          employeeRepository.save(employee);
+          throw new TimeUpException(
+              "It is possible to pass entrance test in " + ENTRY_TEST_TIME_LIMIT
                   + " days," + " but " + days + " days were passed");
         }
         case STUDYING -> {
           employee.setStage(Stage.FAILED_STUDYING);
+          employeeRepository.save(employee);
           throw new TimeUpException("It is possible to study in " + STUDY_TIME_LIMIT
-                  + " days," + " but " + days + " days were passed");
+              + " days," + " but " + days + " days were passed");
         }
         case EXAM -> {
           employee.setStage(Stage.FAILED_EXAM);
+          employeeRepository.save(employee);
           throw new TimeUpException("It is possible to pass exam in " + EXAM_TIME_LIMIT
-                  + " days," + " but " + days + " days were passed");
+              + " days," + " but " + days + " days were passed");
         }
-        default -> {
-          throw new DifferentStageException("There is no such stage!");
-        }
+        default -> throw new DifferentStageException("There is no such stage!");
       }
-    }
-  }
-
-  private void checkInvitationTime(Employee employee, LocalDate currentDate)
-      throws TimeUpException {
-    long timePassed = ChronoUnit.DAYS.between(employee.getStartTime(), currentDate);
-    if (timePassed > INVITATION_TIME_LIMIT) {
-      employee.setStage(Stage.REFUSAL_APPLICATION);
-      employee.setActive(false);
-      employeeRepository.save(employee);
-      throw new TimeUpException("It is possible to answer application in " + INVITATION_TIME_LIMIT
-              + " days," + " but " + timePassed + " days were passed");
     }
   }
 
@@ -181,8 +170,7 @@ public class TrainingServiceImpl implements TrainingService {
     if (!isModuleTest(moduleTest.getTestType())) {
       throw new TestTypeException("Test type isn't MODULE_TEST!");
     }
-    checkTime(employee, moduleTest.getDate(),
-        STUDY_TIME_LIMIT, employee.getStage());
+    checkTime(employee, moduleTest.getDate(), STUDY_TIME_LIMIT, employee.getStage());
     Test test = new Test(employee, moduleTest.getTestType(), moduleTest.getScore() / 20,
         moduleTest.getDate());
     testRepository.save(test);
@@ -255,16 +243,16 @@ public class TrainingServiceImpl implements TrainingService {
 
   public void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
       throws TimeUpException, DifferentStageException {
-
+    // TODO: 03.12.2023 отправка на практику
   }
 
   public void directionToTakeExam(Long employeeId) throws TimeUpException, DifferentStageException {
-
+    // TODO: 03.12.2023 отправка на экзамен
   }
 
   public boolean takeExam(Long employeeId, Boolean result)
       throws TimeUpException, DifferentStageException {
-
+    // TODO: 03.12.2023 сдача экзамена (возвращает true - сдал, false не сдал (не знаю, зачем))
     return true;
   }
 }
