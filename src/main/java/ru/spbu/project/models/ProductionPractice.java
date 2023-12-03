@@ -26,5 +26,6 @@ public class ProductionPractice {
     this.leader = leader;
     this.employee = employee;
     this.project = project;
+    this.result = false;
   }
 }
