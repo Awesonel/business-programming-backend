@@ -1,9 +1,6 @@
 package ru.spbu.project.services;
 
-import org.hibernate.exception.DataException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import org.springframework.stereotype.Service;
 import ru.spbu.project.models.Employee;
 import ru.spbu.project.models.Leader;
@@ -53,19 +50,8 @@ public class TrainingServiceImpl implements TrainingService {
 
   @Override
   public long applyForTraining(TrainingApplicationDTO applicationDTO) {
-    List<Leader> leaders = leaderRepository.findByData(
-        applicationDTO.getLeaderSurname(),
-        applicationDTO.getLeaderName(),
-        applicationDTO.getLeaderPatronymic(),
-        applicationDTO.getLeaderJobTitle());
-    Leader leader;
-    if (leaders.isEmpty()) {
-      leader = new Leader(applicationDTO.getLeaderName(), applicationDTO.getLeaderSurname(),
-          applicationDTO.getLeaderPatronymic(), applicationDTO.getLeaderJobTitle());
-      leaderRepository.save(leader);
-    } else {
-      leader = leaders.get(0);
-    }
+    Leader leader = leaderRepository.findById(applicationDTO.getLeaderId()).orElseThrow(
+            () -> new IllegalArgumentException("There is no leader with id: " + applicationDTO.getLeaderId()));
     Employee employee = new Employee(applicationDTO.getEmployeeName(),
         applicationDTO.getEmployeeSurname(),
         applicationDTO.getEmployeePatronymic(), applicationDTO.getEmployeeJobTitle(),
