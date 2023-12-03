@@ -310,6 +310,7 @@ public class TrainingServiceImpl implements TrainingService {
     employeeRepository.save(employee);
   }
 
+  @Override
   public boolean productionPracticeResult(Long employeeId, Boolean result)
           throws IllegalArgumentException, TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);

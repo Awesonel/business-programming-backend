@@ -41,4 +41,7 @@ public interface TrainingService {
   boolean takeExam(Long employeeId, Boolean result) throws TimeUpException, DifferentStageException;
 
   HashMap<Stage, Integer> getFromPeriod(LocalDate startTime, LocalDate endTime);
+
+  boolean productionPracticeResult(Long employeeId, Boolean result)
+      throws IllegalArgumentException, TimeUpException, DifferentStageException;
 }

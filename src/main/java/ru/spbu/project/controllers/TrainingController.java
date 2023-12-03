@@ -125,6 +125,17 @@ public class TrainingController {
     return new ResponseEntity<>(statistics, HttpStatus.OK);
   }
 
+  @PostMapping("/production-practice-result/{employeeId}")
+  public ResponseEntity<String> productionPracticeResult(@PathVariable Long employeeId,
+      @RequestBody Boolean result)
+      throws IllegalArgumentException, TimeUpException, DifferentStageException {
+    if (trainingService.productionPracticeResult(employeeId, result)) {
+      return new ResponseEntity<>("The production practice was successful.", HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>("Production practice failed.", HttpStatus.OK);
+    }
+  }
+
   @ExceptionHandler(TimeUpException.class)
   public ResponseEntity<ErrorMessage> timeUpExceptionHandler(TimeUpException exception) {
     return ResponseEntity.status(HttpStatus.OK).body(new ErrorMessage(exception.getMessage()));
