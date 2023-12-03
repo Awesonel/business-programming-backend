@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.spbu.project.models.dto.ConfirmApplicationDTO;
+import ru.spbu.project.models.dto.ProductionPracticeDTO;
 import ru.spbu.project.models.dto.RefuseApplicationDTO;
 import ru.spbu.project.models.dto.TestDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
@@ -62,7 +63,7 @@ public class TrainingController {
     }
   }
 
-  @PostMapping("/take-module-test")
+  @PostMapping("/take-module-test/{employeeId}")
   public ResponseEntity<String> takeModuleTest(@PathVariable Long employeeId,
       @RequestBody TestDTO moduleTest)
       throws TimeUpException, DifferentStageException, TestTypeException {
@@ -73,7 +74,7 @@ public class TrainingController {
     }
   }
 
-  @PostMapping("/take-practice-task")
+  @PostMapping("/take-practice-task/{employeeId}")
   public ResponseEntity<String> takePracticeTask(@PathVariable Long employeeId,
       @RequestBody TestDTO practiceTask)
       throws TimeUpException, DifferentStageException, TestTypeException {
@@ -81,6 +82,33 @@ public class TrainingController {
       return new ResponseEntity<>("Practice task passed.", HttpStatus.OK);
     } else {
       return new ResponseEntity<>("Practice task failed.", HttpStatus.OK);
+    }
+  }
+
+  @PostMapping("/passing-production-practice")
+  public ResponseEntity<String> passingProductionPractice(
+      @RequestBody ProductionPracticeDTO productionPracticeDTO)
+      throws TimeUpException, DifferentStageException {
+    trainingService.passingProductionPractice(productionPracticeDTO);
+    return new ResponseEntity<>(
+        "The employee was sent for practical training and a new supervisor was assigned to him.",
+        HttpStatus.OK);
+  }
+
+  @PostMapping("/direction-to-take-exam/{employeeId}")
+  public ResponseEntity<String> directionToTakeExam(@PathVariable Long employeeId)
+      throws TimeUpException, DifferentStageException {
+    trainingService.directionToTakeExam(employeeId);
+    return new ResponseEntity<>("The employee is sent to take the exam.", HttpStatus.OK);
+  }
+
+  @PostMapping("/take-exam/{employeeId}")
+  public ResponseEntity<String> takeExam(@PathVariable Long employeeId, @RequestBody Boolean result)
+      throws TimeUpException, DifferentStageException {
+    if (trainingService.takeExam(employeeId, true)) {
+      return new ResponseEntity<>("The employee passed the exam.", HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>("The employee failed the exam. Sent for retake.", HttpStatus.OK);
     }
   }
 
