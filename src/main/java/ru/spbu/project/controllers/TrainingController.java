@@ -110,7 +110,7 @@ public class TrainingController {
   @PostMapping("/take-exam/{employeeId}")
   public ResponseEntity<String> takeExam(@PathVariable Long employeeId, @RequestBody Boolean result)
       throws TimeUpException, DifferentStageException {
-    if (trainingService.takeExam(employeeId, true)) {
+    if (trainingService.takeExam(employeeId, result)) {
       return new ResponseEntity<>("The employee passed the exam.", HttpStatus.OK);
     } else {
       return new ResponseEntity<>("The employee failed the exam. Sent for retake.", HttpStatus.OK);
