@@ -85,7 +85,7 @@ public class TrainingController {
     }
   }
 
-  @PostMapping("/passing-production-practice")
+  @PostMapping("/send-to-production-practice")
   public ResponseEntity<String> passingProductionPractice(
       @RequestBody ProductionPracticeDTO productionPracticeDTO)
       throws TimeUpException, DifferentStageException {
@@ -95,7 +95,7 @@ public class TrainingController {
         HttpStatus.OK);
   }
 
-  @PostMapping("/direction-to-take-exam/{employeeId}")
+  @PostMapping("/direct-to-exam/{employeeId}")
   public ResponseEntity<String> directionToTakeExam(@PathVariable Long employeeId)
       throws TimeUpException, DifferentStageException {
     trainingService.directionToTakeExam(employeeId);
