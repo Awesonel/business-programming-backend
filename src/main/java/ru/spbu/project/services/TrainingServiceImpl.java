@@ -35,7 +35,7 @@ public class TrainingServiceImpl implements TrainingService {
   static final int INVITATION_TIME_LIMIT = 3;
   static final int ENTRY_TEST_TIME_LIMIT = 5;
   static final int STUDY_TIME_LIMIT = 30;
-  static final int EXAM_TIME_LIMIT = 1;
+//  static final int EXAM_TIME_LIMIT = 1;
 
   public TrainingServiceImpl(LeaderRepository leaderRepository,
       EmployeeRepository employeeRepository, EmployeeService employeeService,
@@ -206,7 +206,7 @@ public class TrainingServiceImpl implements TrainingService {
     if (!employee.getStage().equals(Stage.EXAM)) {
       throw new DifferentStageException("Employee is not passing exam");
     }
-    checkTime(employee, LocalDate.now(), EXAM_TIME_LIMIT, Stage.EXAM);
+    checkActionInPast(employee.getStartTime(), LocalDate.now());
     employee.setExamResult(result);
     if (result) {
       employee.setStage(Stage.PASSED_EXAM);
@@ -284,12 +284,12 @@ public class TrainingServiceImpl implements TrainingService {
           throw new TimeUpException("It is possible to study in " + STUDY_TIME_LIMIT
                   + " days," + " but " + days + " days were passed");
         }
-        case EXAM -> {
-          employee.setStage(Stage.FAILED_EXAM);
-          employeeRepository.save(employee);
-          throw new TimeUpException("It is possible to pass exam in " + EXAM_TIME_LIMIT
-                  + " days," + " but " + days + " days were passed");
-        }
+//        case EXAM -> {
+//          employee.setStage(Stage.FAILED_EXAM);
+//          employeeRepository.save(employee);
+//          throw new TimeUpException("It is possible to pass exam in " + EXAM_TIME_LIMIT
+//                  + " days," + " but " + days + " days were passed");
+//        }
         default -> throw new DifferentStageException("There is no such stage!");
       }
     }
