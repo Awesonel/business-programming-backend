@@ -124,7 +124,7 @@ public class TrainingController {
     return new ResponseEntity<>(trainingService.deleteEmployeeById(id), HttpStatus.OK);
   }
 
-  @RequestMapping("/send-message")
+  @PostMapping("/send-message")
   public ResponseEntity<Integer> sendMessages(List<String> emails, String message) {
     return new ResponseEntity<>(trainingService.sendMessage(emails, message), HttpStatus.OK);
   }
