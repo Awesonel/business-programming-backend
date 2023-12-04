@@ -1,5 +1,6 @@
 package ru.spbu.project.controllers;
 
+import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,5 +35,11 @@ public class LeaderController {
     Leader leader = new Leader(leaderDTO.getName(), leaderDTO.getSurname(), leaderDTO.getPatronymic(), leaderDTO.getJob());
     leaderRepository.save(leader);
     return new ResponseEntity<>(leader.getId(), HttpStatus.OK);
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorMessage> illegalArgumentException(IllegalArgumentException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorMessage("There is no employee/leader with this id."));
   }
 }

@@ -3,6 +3,7 @@ package ru.spbu.project.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,7 +70,7 @@ public class EmployeeController {
     employee.setLeader(leader);
     employee.setStartTime(updateInfo.getStart());
     employee.setReasonForRefuseTraining(updateInfo.getReason());
-    employee.setActive(updateInfo.isActive());
+    employee.setIsActive(updateInfo.isActive());
     employeeRepository.save(employee);
     return new ResponseEntity<>("Employee info successfully changed", HttpStatus.valueOf(204));
   }
@@ -78,6 +79,12 @@ public class EmployeeController {
   public ResponseEntity<Employee> findEmployeeByID(@PathVariable Long id) {
     Employee employee = employeeService.findEmployeeByID(id);
     return new ResponseEntity<>(employee, HttpStatus.OK);
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorMessage> illegalArgumentException(IllegalArgumentException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorMessage("There is no employee/leader with this id."));
   }
 }
 
