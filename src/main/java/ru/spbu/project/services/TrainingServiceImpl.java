@@ -13,6 +13,7 @@ import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.enums.Stage;
 import ru.spbu.project.models.enums.TestType;
 import ru.spbu.project.models.exceptions.DifferentStageException;
+import ru.spbu.project.models.exceptions.ExistingEmailException;
 import ru.spbu.project.models.exceptions.TestTypeException;
 import ru.spbu.project.models.exceptions.TimeUpException;
 import ru.spbu.project.repositories.EmployeeRepository;
@@ -50,12 +51,12 @@ public class TrainingServiceImpl implements TrainingService {
 
 
   @Override
-  public long applyForTraining(TrainingApplicationDTO applicationDTO) {
+  public long applyForTraining(TrainingApplicationDTO applicationDTO) throws ExistingEmailException {
     String email = applicationDTO.getEmployeeMail();
     if (employeeService.checkEmployeeExistenceByEmail(email)) {
       Employee prevEmployee = employeeService.getEmployeeByEmail(email);
       if (prevEmployee.getIsActive()) {
-        throw new IllegalArgumentException("That employee is already studying!");
+        throw new ExistingEmailException("That employee is already studying!");
       }
       else {
         employeeRepository.delete(prevEmployee);
