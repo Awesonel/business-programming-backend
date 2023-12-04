@@ -17,5 +17,6 @@ public class TrainingApplicationDTO {
   String employeePatronymic;
   String employeeJobTitle;
   String trainingPurpose;
+  String employeeMail;
   LocalDate date;
 }

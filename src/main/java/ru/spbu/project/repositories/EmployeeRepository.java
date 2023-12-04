@@ -1,6 +1,7 @@
 package ru.spbu.project.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
   @Query("select e from Employee e where (LOWER(e.name) LIKE LOWER(CONCAT('%', :search, '%')) or LOWER(e.surname) LIKE LOWER(CONCAT('%', :search, '%')) or LOWER(e.patronymic) LIKE LOWER(CONCAT('%', :search, '%'))) and e.stage = :stage")
   List<Employee> findByStageAndName(String search, Stage stage);
+
+  @Query("select e from Employee e where e.email = ?1")
+  Optional<Employee> findByEmail(String email);
 }

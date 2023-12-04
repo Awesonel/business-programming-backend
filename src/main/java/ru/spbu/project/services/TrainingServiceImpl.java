@@ -51,12 +51,22 @@ public class TrainingServiceImpl implements TrainingService {
 
   @Override
   public long applyForTraining(TrainingApplicationDTO applicationDTO) {
+    String email = applicationDTO.getEmployeeMail();
+    if (employeeService.checkEmployeeExistenceByEmail(email)) {
+      Employee prevEmployee = employeeService.getEmployeeByEmail(email);
+      if (prevEmployee.getIsActive()) {
+        throw new IllegalArgumentException("That employee is already studying!");
+      }
+      else {
+        employeeRepository.delete(prevEmployee);
+      }
+    }
     Leader leader = leaderRepository.findById(applicationDTO.getLeaderId()).orElseThrow(
             () -> new IllegalArgumentException("There is no leader with id: " + applicationDTO.getLeaderId()));
     Employee employee = new Employee(applicationDTO.getEmployeeName(),
         applicationDTO.getEmployeeSurname(),
         applicationDTO.getEmployeePatronymic(), applicationDTO.getEmployeeJobTitle(),
-        applicationDTO.getProject(), applicationDTO.getTrainingPurpose(), leader);
+        applicationDTO.getProject(), applicationDTO.getTrainingPurpose(), email, leader);
     employee.setStartTime(applicationDTO.getDate());
     employeeRepository.save(employee);
     return employee.getId();
@@ -231,8 +241,7 @@ public class TrainingServiceImpl implements TrainingService {
     Integer expectsProductionPracticeCounter = 0;
     Integer productionPracticeCounter = 0;
     Integer examCounter = 0;
-    Integer failedCounter = 0;
-    Integer passedCounter = 0;
+    Integer gradCounter = 0;
 
     for (Employee employee : employees) {
       if (startTime.isBefore(employee.getStartTime()) && endTime.isAfter(employee.getStartTime())) {
@@ -241,8 +250,7 @@ public class TrainingServiceImpl implements TrainingService {
           case EXPECTS_PRODUCTION_PRACTICE -> expectsProductionPracticeCounter++;
           case PRODUCTION_PRACTICE -> productionPracticeCounter++;
           case EXAM -> examCounter++;
-          case FAILED_EXAM -> failedCounter++;
-          case PASSED_EXAM -> passedCounter++;
+          case GRADUATED -> gradCounter++;
         }
       }
     }
@@ -252,8 +260,7 @@ public class TrainingServiceImpl implements TrainingService {
     result.put(Stage.EXPECTS_PRODUCTION_PRACTICE, expectsProductionPracticeCounter);
     result.put(Stage.PRODUCTION_PRACTICE, productionPracticeCounter);
     result.put(Stage.EXAM, examCounter);
-    result.put(Stage.FAILED_EXAM, failedCounter);
-    result.put(Stage.PASSED_EXAM, passedCounter);
+    result.put(Stage.GRADUATED, gradCounter);
     return result;
   }
 
@@ -269,6 +276,30 @@ public class TrainingServiceImpl implements TrainingService {
       return true;
     }
     return false;
+  }
+
+  /**
+   *
+   * @param emails - Кому отправляем сообщение
+   * @param message - Само сообщение
+   * @return Количество отправленных сообщений
+   */
+  public Integer sendMessage(List<String> emails, String message) {
+    Integer counter = 0;
+    for (String email: emails){
+      if (employeeService.checkEmployeeExistenceByEmail(email)) {
+        Employee employee = employeeService.getEmployeeByEmail(email);
+        if (employee.getIsActive()) {
+          ++counter;
+        }
+      }
+      // В теории leader может быть отправлен на обучение тоже
+      Optional<Leader> optLeader = leaderRepository.findByEmail(email);
+      if (optLeader.isPresent()) {
+        ++counter;
+      }
+    }
+    return counter;
   }
 
   private void checkActionInPast(LocalDate startDate, LocalDate curDate) throws TimeUpException {

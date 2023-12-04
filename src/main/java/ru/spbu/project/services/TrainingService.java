@@ -3,6 +3,7 @@ package ru.spbu.project.services;
 import java.time.LocalDate;
 
 import java.util.HashMap;
+import java.util.List;
 
 import ru.spbu.project.models.dto.passResultDTO;
 import ru.spbu.project.models.dto.ProductionPracticeDTO;
@@ -43,4 +44,6 @@ public interface TrainingService {
       throws IllegalArgumentException, TimeUpException, DifferentStageException;
 
   Boolean deleteEmployeeById(Long employeeID);
+
+  Integer sendMessage(List<String> emails, String message);
 }
