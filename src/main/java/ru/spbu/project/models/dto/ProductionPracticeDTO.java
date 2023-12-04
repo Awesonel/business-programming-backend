@@ -11,7 +11,7 @@ import ru.spbu.project.models.Leader;
 @NoArgsConstructor
 public class ProductionPracticeDTO {
   Long employeeId;
-  Leader leader;
+  Long leaderId;
   String project;
   LocalDate date;
 }
