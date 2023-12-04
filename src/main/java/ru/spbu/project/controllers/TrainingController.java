@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.spbu.project.models.dto.*;
 import ru.spbu.project.models.enums.Stage;
 import ru.spbu.project.models.exceptions.DifferentStageException;
+import ru.spbu.project.models.exceptions.ExistingEmailException;
 import ru.spbu.project.models.exceptions.TestTypeException;
 import ru.spbu.project.models.exceptions.TimeUpException;
 import ru.spbu.project.services.TrainingService;
@@ -26,7 +27,8 @@ public class TrainingController {
   }
 
   @PostMapping("/submit-application")
-  public ResponseEntity<Long> submitApplication(@RequestBody TrainingApplicationDTO request) {
+  public ResponseEntity<Long> submitApplication(@RequestBody TrainingApplicationDTO request)
+          throws ExistingEmailException {
     long id = trainingService.applyForTraining(request);
     return new ResponseEntity<>(id, HttpStatus.OK);
   }
@@ -125,7 +127,7 @@ public class TrainingController {
   }
 
   @PostMapping("/send-message")
-  public ResponseEntity<Integer> sendMessages(List<String> emails, String message) {
+  public ResponseEntity<Integer> sendMessages(@RequestParam  List<String> emails, @RequestParam String message) {
     return new ResponseEntity<>(trainingService.sendMessage(emails, message), HttpStatus.OK);
   }
 
@@ -151,5 +153,11 @@ public class TrainingController {
   public ResponseEntity<ErrorMessage> illegalArgumentException(IllegalArgumentException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(new ErrorMessage("There is no employee/leader with this id."));
+  }
+
+  @ExceptionHandler(ExistingEmailException.class)
+  public ResponseEntity<ErrorMessage> existingEmailException(ExistingEmailException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+            body(new ErrorMessage(exception.getMessage()));
   }
 }

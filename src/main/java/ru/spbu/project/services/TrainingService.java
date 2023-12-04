@@ -11,12 +11,13 @@ import ru.spbu.project.models.dto.TestDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.enums.Stage;
 import ru.spbu.project.models.exceptions.DifferentStageException;
+import ru.spbu.project.models.exceptions.ExistingEmailException;
 import ru.spbu.project.models.exceptions.TestTypeException;
 import ru.spbu.project.models.exceptions.TimeUpException;
 
 public interface TrainingService {
 
-  long applyForTraining(TrainingApplicationDTO applicationDTO);
+  long applyForTraining(TrainingApplicationDTO applicationDTO) throws ExistingEmailException;
 
   void confirmTraining(Long employeeId, LocalDate date)
       throws TimeUpException, DifferentStageException;
