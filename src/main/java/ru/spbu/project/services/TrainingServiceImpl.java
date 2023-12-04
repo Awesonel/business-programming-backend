@@ -295,9 +295,11 @@ public class TrainingServiceImpl implements TrainingService {
         }
       }
       // В теории leader может быть отправлен на обучение тоже
-      Optional<Leader> optLeader = leaderRepository.findByEmail(email);
-      if (optLeader.isPresent()) {
-        ++counter;
+      else {
+        Optional<Leader> optLeader = leaderRepository.findByEmail(email);
+        if (optLeader.isPresent()) {
+          ++counter;
+        }
       }
     }
     return counter;
