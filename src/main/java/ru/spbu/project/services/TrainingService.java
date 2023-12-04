@@ -36,8 +36,6 @@ public interface TrainingService {
   void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
       throws TimeUpException, DifferentStageException;
 
-  void directionToTakeExam(Long employeeId) throws TimeUpException, DifferentStageException;
-
   boolean takeExam(Long employeeId, Boolean result) throws TimeUpException, DifferentStageException;
 
   HashMap<Stage, Integer> getFromPeriod(LocalDate startTime, LocalDate endTime);

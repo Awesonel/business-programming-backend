@@ -35,7 +35,7 @@ public class TrainingServiceImpl implements TrainingService {
   static final int INVITATION_TIME_LIMIT = 3;
   static final int ENTRY_TEST_TIME_LIMIT = 5;
   static final int STUDY_TIME_LIMIT = 30;
-  static final int EXAM_TIME_LIMIT = 1;
+//  static final int EXAM_TIME_LIMIT = 1;
 
   public TrainingServiceImpl(LeaderRepository leaderRepository,
       EmployeeRepository employeeRepository, EmployeeService employeeService,
@@ -165,15 +165,14 @@ public class TrainingServiceImpl implements TrainingService {
       throw new DifferentStageException("Employee is not waiting for internship");
     }
     checkActionInPast(employee.getStartTime(), productionPracticeDTO.getDate());
-    Optional<Leader> optLeader = leaderRepository.findById(productionPracticeDTO.getLeader().getId());
-    if (optLeader.isEmpty()) {
-      leaderRepository.save(productionPracticeDTO.getLeader());
-    }
-    ProductionPractice practice = new ProductionPractice(productionPracticeDTO.getLeader(),
+    Leader leader = leaderRepository.findById(productionPracticeDTO.getLeaderId()).
+            orElseThrow(() -> new IllegalArgumentException("There is no leader with id " +
+                    productionPracticeDTO.getLeaderId()));
+    ProductionPractice practice = new ProductionPractice(leader,
             employee, productionPracticeDTO.getProject());
-    productionPracticeRepository.save(practice);
     employee.setStage(Stage.PRODUCTION_PRACTICE);
     employeeRepository.save(employee);
+    productionPracticeRepository.save(practice);
   }
 
   @Override
@@ -183,35 +182,22 @@ public class TrainingServiceImpl implements TrainingService {
     if (!employee.getStage().equals(Stage.PRODUCTION_PRACTICE)) {
       throw new DifferentStageException("Employee is not on internship");
     }
-    checkActionInPast(employee.getStartTime(), LocalDate.now());
+    LocalDate date = LocalDate.now();
+    checkActionInPast(employee.getStartTime(), date);
     ProductionPractice practice = productionPracticeRepository.findProductionPracticeByEmployee(employee).
             orElseThrow(() -> new IllegalArgumentException("Chosen employee is not on internship"));
     practice.setResult(result);
-    productionPracticeRepository.save(practice);
-    if (!result) {
+    if (result) {
+      employee.setStartTime(date);
+      employee.setStage(Stage.EXAM);
+    }
+    else {
       employee.setStage(Stage.FAILED_PRODUCTION_PRACTICE);
       employee.setActive(false);
-      employeeRepository.save(employee);
     }
-    return result;
-  }
-
-  public void directionToTakeExam(Long employeeId)
-          throws TimeUpException, DifferentStageException, IllegalArgumentException {
-    Employee employee = employeeService.findEmployeeByID(employeeId);
-    if (!employee.getStage().equals(Stage.PRODUCTION_PRACTICE)) {
-      throw new DifferentStageException("Employee is not on internship");
-    }
-    ProductionPractice practice = productionPracticeRepository.findProductionPracticeByEmployee(employee).
-            orElseThrow(() -> new IllegalArgumentException("Chosen employee is not on internship"));
-    if (!practice.getResult()) {
-      throw new IllegalArgumentException("Employee didn't pass internship");
-    }
-    LocalDate date = LocalDate.now();
-    checkActionInPast(employee.getStartTime(), date);
-    employee.setStartTime(date);
-    employee.setStage(Stage.EXAM);
     employeeRepository.save(employee);
+    productionPracticeRepository.save(practice);
+    return result;
   }
 
   public boolean takeExam(Long employeeId, Boolean result)
@@ -220,12 +206,12 @@ public class TrainingServiceImpl implements TrainingService {
     if (!employee.getStage().equals(Stage.EXAM)) {
       throw new DifferentStageException("Employee is not passing exam");
     }
-    checkTime(employee, LocalDate.now(), EXAM_TIME_LIMIT, Stage.EXAM);
+    checkActionInPast(employee.getStartTime(), LocalDate.now());
     employee.setExamResult(result);
-    employeeRepository.save(employee);
     if (result) {
       employee.setStage(Stage.PASSED_EXAM);
     }
+    employeeRepository.save(employee);
     return result;
   }
 
@@ -298,12 +284,12 @@ public class TrainingServiceImpl implements TrainingService {
           throw new TimeUpException("It is possible to study in " + STUDY_TIME_LIMIT
                   + " days," + " but " + days + " days were passed");
         }
-        case EXAM -> {
-          employee.setStage(Stage.FAILED_EXAM);
-          employeeRepository.save(employee);
-          throw new TimeUpException("It is possible to pass exam in " + EXAM_TIME_LIMIT
-                  + " days," + " but " + days + " days were passed");
-        }
+//        case EXAM -> {
+//          employee.setStage(Stage.FAILED_EXAM);
+//          employeeRepository.save(employee);
+//          throw new TimeUpException("It is possible to pass exam in " + EXAM_TIME_LIMIT
+//                  + " days," + " but " + days + " days were passed");
+//        }
         default -> throw new DifferentStageException("There is no such stage!");
       }
     }
