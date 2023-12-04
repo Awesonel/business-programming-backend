@@ -1,6 +1,7 @@
 package ru.spbu.project.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,8 @@ public class Leader {
   private String surname;
   private String patronymic;
   private String jobTitle;
+  @Email
+  private String email;
 
 
   public Leader(String leaderName, String leaderSurname, String leaderPatronymic, String leaderJobTitle) {

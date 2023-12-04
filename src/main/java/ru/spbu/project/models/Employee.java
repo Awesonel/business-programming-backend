@@ -1,6 +1,7 @@
 package ru.spbu.project.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,8 @@ public class Employee {
   private LocalDate startTime;
   private String reasonForRefuseTraining;
   private Boolean isActive;
-
+  @Email
+  private String email;
   private Boolean examResult;
 
   public Employee(String employeeName,
@@ -49,5 +51,25 @@ public class Employee {
     this.leader = leader;
     this.stage = Stage.WAITING_APPLICATION_TRAINING;
     this.isActive = true;
+  }
+
+  public Employee(String employeeName,
+                  String employeeSurname,
+                  String employeePatronymic,
+                  String employeeJobTitle,
+                  String project,
+                  String trainingPurpose,
+                  String email,
+                  Leader leader) {
+    this.name = employeeName;
+    this.surname = employeeSurname;
+    this.patronymic = employeePatronymic;
+    this.jobTitle = employeeJobTitle;
+    this.project = project;
+    this.trainingPurpose = trainingPurpose;
+    this.leader = leader;
+    this.stage = Stage.WAITING_APPLICATION_TRAINING;
+    this.isActive = true;
+    this.email = email;
   }
 }
