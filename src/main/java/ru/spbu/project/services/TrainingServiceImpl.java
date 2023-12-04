@@ -131,6 +131,7 @@ public class TrainingServiceImpl implements TrainingService {
     testRepository.save(test);
     if (checkProgress(employee)) {
       employee.setStage(Stage.EXPECTS_PRODUCTION_PRACTICE);
+      employee.setStartTime(moduleTest.getDate());
       employeeRepository.save(employee);
     }
     return test.getScorePercent() >= 0.8;
@@ -153,6 +154,7 @@ public class TrainingServiceImpl implements TrainingService {
     testRepository.save(test);
     if (checkProgress(employee)) {
       employee.setStage(Stage.EXPECTS_PRODUCTION_PRACTICE);
+      employee.setStartTime(practiceTask.getDate());
       employeeRepository.save(employee);
     }
     return test.getScorePercent() >= 0.8;
