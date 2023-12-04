@@ -57,7 +57,7 @@ public class EmployeeController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<String> changeEmployee(@PathVariable Long id, @RequestBody UpdateEmployeeDTO updateInfo) {
+  public ResponseEntity<Employee> changeEmployee(@PathVariable Long id, @RequestBody UpdateEmployeeDTO updateInfo) {
     Employee employee = employeeService.findEmployeeByID(id);
     Leader leader = leaderRepository.findById(updateInfo.getLeader()).orElseThrow(() -> new IllegalArgumentException("There is no leader with id: " + updateInfo.getLeader()));
     employee.setName(updateInfo.getName());
@@ -72,7 +72,7 @@ public class EmployeeController {
     employee.setReasonForRefuseTraining(updateInfo.getReason());
     employee.setIsActive(updateInfo.isActive());
     employeeRepository.save(employee);
-    return new ResponseEntity<>("Employee info successfully changed", HttpStatus.valueOf(204));
+    return new ResponseEntity<>(employee, HttpStatus.valueOf(204));
   }
 
   @GetMapping("/{id}")
