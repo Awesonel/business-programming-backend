@@ -56,7 +56,7 @@ public class TrainingServiceImpl implements TrainingService {
     if (employeeService.checkEmployeeExistenceByEmail(email)) {
       Employee prevEmployee = employeeService.getEmployeeByEmail(email);
       if (prevEmployee.getIsActive()) {
-        throw new ExistingEmailException("That employee is already studying!");
+        throw new ExistingEmailException("Employee with such email is already studying");
       }
       else {
         employeeRepository.delete(prevEmployee);
