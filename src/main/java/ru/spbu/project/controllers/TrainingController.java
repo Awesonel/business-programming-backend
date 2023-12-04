@@ -2,6 +2,7 @@ package ru.spbu.project.controllers;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
@@ -121,6 +122,11 @@ public class TrainingController {
   @DeleteMapping("/delete-employee/{id}")
   public ResponseEntity<Boolean> deleteEmployeeByID(@PathVariable Long id) {
     return new ResponseEntity<>(trainingService.deleteEmployeeById(id), HttpStatus.OK);
+  }
+
+  @RequestMapping("/send-message")
+  public ResponseEntity<Integer> sendMessages(List<String> emails, String message) {
+    return new ResponseEntity<>(trainingService.sendMessage(emails, message), HttpStatus.OK);
   }
 
   @ExceptionHandler(TimeUpException.class)
