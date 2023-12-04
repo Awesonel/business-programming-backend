@@ -186,17 +186,18 @@ public class TrainingServiceImpl implements TrainingService {
     checkActionInPast(employee.getStartTime(), date);
     ProductionPractice practice = productionPracticeRepository.findProductionPracticeByEmployee(employee).
             orElseThrow(() -> new IllegalArgumentException("Chosen employee is not on internship"));
-    practice.setResult(result);
+    employee.setStartTime(date);
     if (result) {
-      employee.setStartTime(date);
+      practice.setResult(result);
       employee.setStage(Stage.EXAM);
+      productionPracticeRepository.save(practice);
     }
     else {
-      employee.setStage(Stage.FAILED_PRODUCTION_PRACTICE);
-      employee.setActive(false);
+      productionPracticeRepository.delete(practice);
+      employee.setStage(Stage.EXPECTS_PRODUCTION_PRACTICE);
+      employee.setStartTime(date);
     }
     employeeRepository.save(employee);
-    productionPracticeRepository.save(practice);
     return result;
   }
 
