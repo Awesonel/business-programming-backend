@@ -70,6 +70,7 @@ public class EmployeeController {
     employee.setLeader(leader);
     employee.setStartTime(updateInfo.getStart());
     employee.setReasonForRefuseTraining(updateInfo.getReason());
+    employee.setEmail(updateInfo.getEmail());
     employee.setIsActive(updateInfo.isActive());
     employeeRepository.save(employee);
     return new ResponseEntity<>(employee, HttpStatus.valueOf(204));

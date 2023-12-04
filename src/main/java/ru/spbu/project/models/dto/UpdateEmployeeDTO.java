@@ -1,5 +1,6 @@
 package ru.spbu.project.models.dto;
 
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,5 +22,6 @@ public class UpdateEmployeeDTO {
   private Long leader;
   private LocalDate start;
   private String reason;
+  private String email;
   private boolean isActive;
 }
