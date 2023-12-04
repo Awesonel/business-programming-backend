@@ -231,8 +231,7 @@ public class TrainingServiceImpl implements TrainingService {
     Integer expectsProductionPracticeCounter = 0;
     Integer productionPracticeCounter = 0;
     Integer examCounter = 0;
-    Integer failedCounter = 0;
-    Integer passedCounter = 0;
+    Integer gradCounter = 0;
 
     for (Employee employee : employees) {
       if (startTime.isBefore(employee.getStartTime()) && endTime.isAfter(employee.getStartTime())) {
@@ -241,8 +240,7 @@ public class TrainingServiceImpl implements TrainingService {
           case EXPECTS_PRODUCTION_PRACTICE -> expectsProductionPracticeCounter++;
           case PRODUCTION_PRACTICE -> productionPracticeCounter++;
           case EXAM -> examCounter++;
-          case FAILED_EXAM -> failedCounter++;
-          case PASSED_EXAM -> passedCounter++;
+          case GRADUATED -> gradCounter++;
         }
       }
     }
@@ -252,8 +250,7 @@ public class TrainingServiceImpl implements TrainingService {
     result.put(Stage.EXPECTS_PRODUCTION_PRACTICE, expectsProductionPracticeCounter);
     result.put(Stage.PRODUCTION_PRACTICE, productionPracticeCounter);
     result.put(Stage.EXAM, examCounter);
-    result.put(Stage.FAILED_EXAM, failedCounter);
-    result.put(Stage.PASSED_EXAM, passedCounter);
+    result.put(Stage.GRADUATED, gradCounter);
     return result;
   }
 
