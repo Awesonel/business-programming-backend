@@ -168,9 +168,12 @@ public class TrainingServiceImpl implements TrainingService {
     Leader leader = leaderRepository.findById(productionPracticeDTO.getLeaderId()).
             orElseThrow(() -> new IllegalArgumentException("There is no leader with id " +
                     productionPracticeDTO.getLeaderId()));
+    Optional<ProductionPractice> optPractice = productionPracticeRepository.
+            findProductionPracticeByEmployee(employee);
+    optPractice.ifPresent(productionPracticeRepository::delete);
+    employee.setStage(Stage.PRODUCTION_PRACTICE);
     ProductionPractice practice = new ProductionPractice(leader,
             employee, productionPracticeDTO.getProject());
-    employee.setStage(Stage.PRODUCTION_PRACTICE);
     employeeRepository.save(employee);
     productionPracticeRepository.save(practice);
   }
@@ -188,7 +191,7 @@ public class TrainingServiceImpl implements TrainingService {
             orElseThrow(() -> new IllegalArgumentException("Chosen employee is not on internship"));
     employee.setStartTime(date);
     if (result) {
-      practice.setResult(result);
+      practice.setResult(true);
       employee.setStage(Stage.EXAM);
       productionPracticeRepository.save(practice);
     }
