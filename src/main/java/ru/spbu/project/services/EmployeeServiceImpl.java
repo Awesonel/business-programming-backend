@@ -20,5 +20,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     );
   }
 
+  public Boolean deleteEmployeeById(Long employeeID) {
+    if (employeeRepository.existsById(employeeID)) {
+      employeeRepository.deleteById(employeeID);
+      return true;
+    }
+    return false;
+  }
+
 
 }
