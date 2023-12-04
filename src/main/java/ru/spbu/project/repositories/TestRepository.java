@@ -15,6 +15,6 @@ public interface TestRepository extends JpaRepository<Test, Long> {
     @Query("select t from Test t where t.employee = ?1 and t.testType = ?2")
     List<Test> employeeFindTest(Employee employee, TestType testType);
 
-    @Query("select e from Employee e where e.surname = ?1 and e.name = ?2 and e.patronymic = ?3")
-    List<Employee> findByName(String surname, String name, String patronymic);
+    @Query("select t from Test t where t.employee = ?1")
+    List<Test> employeeAllTests(Employee employee);
 }

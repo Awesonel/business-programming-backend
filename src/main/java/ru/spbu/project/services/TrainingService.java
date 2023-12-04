@@ -42,4 +42,6 @@ public interface TrainingService {
 
   boolean productionPracticeResult(Long employeeId, Boolean result)
       throws IllegalArgumentException, TimeUpException, DifferentStageException;
+
+  Boolean deleteEmployeeById(Long employeeID);
 }

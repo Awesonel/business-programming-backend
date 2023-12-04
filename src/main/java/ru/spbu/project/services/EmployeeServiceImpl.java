@@ -19,14 +19,4 @@ public class EmployeeServiceImpl implements EmployeeService {
             () -> new IllegalArgumentException("There is no employee with id: " + employeeID)
     );
   }
-
-  public Boolean deleteEmployeeById(Long employeeID) {
-    if (employeeRepository.existsById(employeeID)) {
-      employeeRepository.deleteById(employeeID);
-      return true;
-    }
-    return false;
-  }
-
-
 }

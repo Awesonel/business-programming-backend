@@ -6,14 +6,7 @@ import java.util.Map;
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.spbu.project.models.dto.ConfirmApplicationDTO;
 import ru.spbu.project.models.dto.ProductionPracticeDTO;
 import ru.spbu.project.models.dto.RefuseApplicationDTO;
@@ -127,6 +120,11 @@ public class TrainingController {
     } else {
       return new ResponseEntity<>("Production practice failed.", HttpStatus.OK);
     }
+  }
+
+  @DeleteMapping("/delete-employee/{id}")
+  public ResponseEntity<Boolean> deleteEmployeeByID(@PathVariable Long id) {
+    return new ResponseEntity<>(trainingService.deleteEmployeeById(id), HttpStatus.OK);
   }
 
   @ExceptionHandler(TimeUpException.class)

@@ -254,6 +254,20 @@ public class TrainingServiceImpl implements TrainingService {
     return result;
   }
 
+  public Boolean deleteEmployeeById(Long employeeID) {
+    if (employeeRepository.existsById(employeeID)) {
+      Employee employee = employeeService.findEmployeeByID(employeeID);
+      List<Test> tests = testRepository.employeeAllTests(employee);
+      testRepository.deleteAll(tests);
+      Optional<ProductionPractice> optPractice = productionPracticeRepository.
+              findProductionPracticeByEmployee(employee);
+      optPractice.ifPresent(productionPracticeRepository::delete);
+      employeeRepository.deleteById(employeeID);
+      return true;
+    }
+    return false;
+  }
+
   private void checkActionInPast(LocalDate startDate, LocalDate curDate) throws TimeUpException {
     if (ChronoUnit.DAYS.between(startDate, curDate) < 0) {
       throw new TimeUpException("Action in the past");
