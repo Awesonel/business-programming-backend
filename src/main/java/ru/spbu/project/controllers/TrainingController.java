@@ -2,16 +2,12 @@ package ru.spbu.project.controllers;
 
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.Map;
+
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.spbu.project.models.dto.ConfirmApplicationDTO;
-import ru.spbu.project.models.dto.ProductionPracticeDTO;
-import ru.spbu.project.models.dto.RefuseApplicationDTO;
-import ru.spbu.project.models.dto.TestDTO;
-import ru.spbu.project.models.dto.TrainingApplicationDTO;
+import ru.spbu.project.models.dto.*;
 import ru.spbu.project.models.enums.Stage;
 import ru.spbu.project.models.exceptions.DifferentStageException;
 import ru.spbu.project.models.exceptions.TestTypeException;
@@ -94,7 +90,7 @@ public class TrainingController {
   }
 
   @PostMapping("/take-exam/{employeeId}")
-  public ResponseEntity<String> takeExam(@PathVariable Long employeeId, @RequestBody Boolean result)
+  public ResponseEntity<String> takeExam(@PathVariable Long employeeId, @RequestBody passResultDTO result)
       throws TimeUpException, DifferentStageException {
     if (trainingService.takeExam(employeeId, result)) {
       return new ResponseEntity<>("The employee passed the exam.", HttpStatus.OK);
@@ -113,7 +109,7 @@ public class TrainingController {
 
   @PostMapping("/production-practice-result/{employeeId}")
   public ResponseEntity<String> productionPracticeResult(@PathVariable Long employeeId,
-      @RequestBody Boolean result)
+      @RequestBody passResultDTO result)
       throws IllegalArgumentException, TimeUpException, DifferentStageException {
     if (trainingService.productionPracticeResult(employeeId, result)) {
       return new ResponseEntity<>("The production practice was successful.", HttpStatus.OK);

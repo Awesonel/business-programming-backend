@@ -6,6 +6,7 @@ import ru.spbu.project.models.Employee;
 import ru.spbu.project.models.Leader;
 import ru.spbu.project.models.ProductionPractice;
 import ru.spbu.project.models.Test;
+import ru.spbu.project.models.dto.passResultDTO;
 import ru.spbu.project.models.dto.ProductionPracticeDTO;
 import ru.spbu.project.models.dto.TestDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
@@ -174,6 +175,7 @@ public class TrainingServiceImpl implements TrainingService {
             findProductionPracticeByEmployee(employee);
     optPractice.ifPresent(productionPracticeRepository::delete);
     employee.setStage(Stage.PRODUCTION_PRACTICE);
+    employee.setStartTime(productionPracticeDTO.getDate());
     ProductionPractice practice = new ProductionPractice(leader,
             employee, productionPracticeDTO.getProject());
     employeeRepository.save(employee);
@@ -181,18 +183,18 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   @Override
-  public boolean productionPracticeResult(Long employeeId, Boolean result)
+  public boolean productionPracticeResult(Long employeeId, passResultDTO result)
           throws IllegalArgumentException, TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     if (!employee.getStage().equals(Stage.PRODUCTION_PRACTICE)) {
       throw new DifferentStageException("Employee is not on internship");
     }
-    LocalDate date = LocalDate.now();
+    LocalDate date = result.getDate();
     checkActionInPast(employee.getStartTime(), date);
     ProductionPractice practice = productionPracticeRepository.findProductionPracticeByEmployee(employee).
             orElseThrow(() -> new IllegalArgumentException("Chosen employee is not on internship"));
     employee.setStartTime(date);
-    if (result) {
+    if (result.getRes()) {
       practice.setResult(true);
       employee.setStage(Stage.EXAM);
       productionPracticeRepository.save(practice);
@@ -203,22 +205,23 @@ public class TrainingServiceImpl implements TrainingService {
       employee.setStartTime(date);
     }
     employeeRepository.save(employee);
-    return result;
+    return result.getRes();
   }
 
-  public boolean takeExam(Long employeeId, Boolean result)
+  public boolean takeExam(Long employeeId, passResultDTO result)
       throws TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     if (!employee.getStage().equals(Stage.EXAM)) {
       throw new DifferentStageException("Employee is not passing exam");
     }
-    checkActionInPast(employee.getStartTime(), LocalDate.now());
-    employee.setExamResult(result);
-    if (result) {
-      employee.setStage(Stage.PASSED_EXAM);
+    LocalDate date = result.getDate();
+    checkActionInPast(employee.getStartTime(), date);
+    if (result.getRes()) {
+      employee.setStage(Stage.GRADUATED);
     }
+    employee.setExamResult(result.getRes());
     employeeRepository.save(employee);
-    return result;
+    return result.getRes();
   }
 
   @Override

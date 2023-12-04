@@ -31,7 +31,7 @@ public class Employee {
   private String reasonForRefuseTraining;
   private boolean isActive;
 
-  private Boolean examResult;
+  private boolean examResult;
 
   public Employee(String employeeName,
                   String employeeSurname,

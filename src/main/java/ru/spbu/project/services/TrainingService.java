@@ -3,9 +3,8 @@ package ru.spbu.project.services;
 import java.time.LocalDate;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import ru.spbu.project.models.Employee;
+
+import ru.spbu.project.models.dto.passResultDTO;
 import ru.spbu.project.models.dto.ProductionPracticeDTO;
 import ru.spbu.project.models.dto.TestDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
@@ -36,11 +35,11 @@ public interface TrainingService {
   void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
       throws TimeUpException, DifferentStageException;
 
-  boolean takeExam(Long employeeId, Boolean result) throws TimeUpException, DifferentStageException;
+  boolean takeExam(Long employeeId, passResultDTO result) throws TimeUpException, DifferentStageException;
 
   HashMap<Stage, Integer> getFromPeriod(LocalDate startTime, LocalDate endTime);
 
-  boolean productionPracticeResult(Long employeeId, Boolean result)
+  boolean productionPracticeResult(Long employeeId, passResultDTO result)
       throws IllegalArgumentException, TimeUpException, DifferentStageException;
 
   Boolean deleteEmployeeById(Long employeeID);
