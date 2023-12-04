@@ -85,7 +85,7 @@ public class TrainingServiceImpl implements TrainingService {
           "The employee is at a different stage. Current stage: " + employee.getStage());
     }
     checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
-    employee.setActive(false);
+    employee.setIsActive(false);
     employee.setReasonForRefuseTraining(reason);
     employee.setStage(Stage.REFUSAL_APPLICATION);
     employeeRepository.save(employee);
@@ -285,7 +285,7 @@ public class TrainingServiceImpl implements TrainingService {
       throw new TimeUpException("Action in the past");
     }
     if (days > timeDif) {
-      employee.setActive(false);
+      employee.setIsActive(false);
       switch (stage) {
         case WAITING_APPLICATION_TRAINING -> {
           employee.setStage(Stage.REFUSAL_APPLICATION);

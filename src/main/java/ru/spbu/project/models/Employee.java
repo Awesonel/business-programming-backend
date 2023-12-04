@@ -29,9 +29,9 @@ public class Employee {
   private Leader leader;
   private LocalDate startTime;
   private String reasonForRefuseTraining;
-  private boolean isActive;
+  private Boolean isActive;
 
-  private boolean examResult;
+  private Boolean examResult;
 
   public Employee(String employeeName,
                   String employeeSurname,
