@@ -127,7 +127,7 @@ public class TrainingController {
   }
 
   @PostMapping("/send-message")
-  public ResponseEntity<Integer> sendMessages(@RequestBody  List<String> emails, @RequestBody String message) {
+  public ResponseEntity<Integer> sendMessages(@RequestParam  List<String> emails, @RequestParam String message) {
     return new ResponseEntity<>(trainingService.sendMessage(emails, message), HttpStatus.OK);
   }
 
