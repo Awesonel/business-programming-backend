@@ -12,10 +12,7 @@ import ru.spbu.project.models.dto.TestDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.enums.Stage;
 import ru.spbu.project.models.enums.TestType;
-import ru.spbu.project.models.exceptions.DifferentStageException;
-import ru.spbu.project.models.exceptions.ExistingEmailException;
-import ru.spbu.project.models.exceptions.TestTypeException;
-import ru.spbu.project.models.exceptions.TimeUpException;
+import ru.spbu.project.models.exceptions.*;
 import ru.spbu.project.repositories.EmployeeRepository;
 import ru.spbu.project.repositories.LeaderRepository;
 import java.time.LocalDate;
@@ -75,13 +72,14 @@ public class TrainingServiceImpl implements TrainingService {
 
   @Override
   public void confirmTraining(Long employeeId, LocalDate date)
-      throws TimeUpException, DifferentStageException {
+          throws TimeUpException, DifferentStageException, ActionInPastException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException(
           "The employee is at a different stage. Current stage: " + employee.getStage());
     }
     checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
+    checkActionInPast(employee.getStartTime(), date);
     employee.setStage(Stage.PASSES_ENTRANCE_TEST);
     employee.setStartTime(date);
     employeeRepository.save(employee);
@@ -89,13 +87,14 @@ public class TrainingServiceImpl implements TrainingService {
 
   @Override
   public void refuseTraining(Long employeeID, String reason, LocalDate date)
-      throws DifferentStageException, TimeUpException {
+          throws DifferentStageException, TimeUpException, ActionInPastException {
     Employee employee = employeeService.findEmployeeByID(employeeID);
     if (!employee.getStage().equals(Stage.WAITING_APPLICATION_TRAINING)) {
       throw new DifferentStageException(
           "The employee is at a different stage. Current stage: " + employee.getStage());
     }
     checkTime(employee, date, ENTRY_TEST_TIME_LIMIT, employee.getStage());
+    checkActionInPast(employee.getStartTime(), date);
     employee.setIsActive(false);
     employee.setReasonForRefuseTraining(reason);
     employee.setStage(Stage.REFUSAL_APPLICATION);
@@ -104,7 +103,7 @@ public class TrainingServiceImpl implements TrainingService {
 
   @Override
   public boolean takeEntryTest(Long employeeID, TestDTO testDTO)
-      throws TimeUpException, DifferentStageException, TestTypeException {
+          throws TimeUpException, DifferentStageException, TestTypeException, ActionInPastException {
     Employee employee = employeeService.findEmployeeByID(employeeID);
     if (!employee.getStage().equals(Stage.PASSES_ENTRANCE_TEST)) {
       throw new DifferentStageException("Employee can't pass this test");
@@ -114,6 +113,7 @@ public class TrainingServiceImpl implements TrainingService {
     }
     checkTime(employee,  testDTO.getDate(),
             ENTRY_TEST_TIME_LIMIT, employee.getStage());
+    checkActionInPast(employee.getStartTime(), testDTO.getDate());
     Test test = new Test(employee, testDTO.getTestType(), testDTO.getScore() / 20,
         testDTO.getDate());
     if (test.getScorePercent() < 0.8) {
@@ -129,7 +129,7 @@ public class TrainingServiceImpl implements TrainingService {
 
   @Override
   public boolean takeModuleTest(Long employeeId, TestDTO moduleTest)
-      throws TimeUpException, DifferentStageException, TestTypeException {
+          throws TimeUpException, DifferentStageException, TestTypeException, ActionInPastException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     if (!employee.getStage().equals(Stage.STUDYING)) {
       throw new DifferentStageException("Employee can't pass this test");
@@ -138,6 +138,7 @@ public class TrainingServiceImpl implements TrainingService {
       throw new TestTypeException("Test type isn't MODULE_TEST!");
     }
     checkTime(employee, moduleTest.getDate(), STUDY_TIME_LIMIT, employee.getStage());
+    checkActionInPast(employee.getStartTime(), moduleTest.getDate());
     Test test = new Test(employee, moduleTest.getTestType(), moduleTest.getScore() / 20,
         moduleTest.getDate());
     testRepository.save(test);
@@ -151,7 +152,7 @@ public class TrainingServiceImpl implements TrainingService {
 
   @Override
   public boolean takePracticeTask(Long employeeId, TestDTO practiceTask)
-      throws TimeUpException, DifferentStageException, TestTypeException {
+          throws TimeUpException, DifferentStageException, TestTypeException, ActionInPastException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     if (!employee.getStage().equals(Stage.STUDYING)) {
       throw new DifferentStageException("Employee can't pass this test");
@@ -161,6 +162,7 @@ public class TrainingServiceImpl implements TrainingService {
     }
     checkTime(employee, practiceTask.getDate(),
         STUDY_TIME_LIMIT, employee.getStage());
+    checkActionInPast(employee.getStartTime(), practiceTask.getDate());
     Test test = new Test(employee, practiceTask.getTestType(), practiceTask.getScore() / 20,
         practiceTask.getDate());
     testRepository.save(test);
@@ -173,7 +175,7 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   public void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
-          throws TimeUpException, DifferentStageException, IllegalArgumentException {
+          throws ActionInPastException, DifferentStageException, IllegalArgumentException {
     Employee employee = employeeService.findEmployeeByID(productionPracticeDTO.getEmployeeId());
     if (!employee.getStage().equals(Stage.EXPECTS_PRODUCTION_PRACTICE)) {
       throw new DifferentStageException("Employee is not waiting for internship");
@@ -195,7 +197,7 @@ public class TrainingServiceImpl implements TrainingService {
 
   @Override
   public boolean productionPracticeResult(Long employeeId, passResultDTO result)
-          throws IllegalArgumentException, TimeUpException, DifferentStageException {
+          throws IllegalArgumentException, ActionInPastException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     if (!employee.getStage().equals(Stage.PRODUCTION_PRACTICE)) {
       throw new DifferentStageException("Employee is not on internship");
@@ -220,7 +222,7 @@ public class TrainingServiceImpl implements TrainingService {
   }
 
   public boolean takeExam(Long employeeId, passResultDTO result)
-      throws TimeUpException, DifferentStageException {
+      throws ActionInPastException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
     if (!employee.getStage().equals(Stage.EXAM) && !employee.getStage().equals(Stage.FAILED_EXAM)) {
       throw new DifferentStageException("Employee is not passing exam");
@@ -303,9 +305,9 @@ public class TrainingServiceImpl implements TrainingService {
     return counter;
   }
 
-  private void checkActionInPast(LocalDate startDate, LocalDate curDate) throws TimeUpException {
+  private void checkActionInPast(LocalDate startDate, LocalDate curDate) throws ActionInPastException {
     if (ChronoUnit.DAYS.between(startDate, curDate) < 0) {
-      throw new TimeUpException("Action in the past");
+      throw new ActionInPastException("Action in the past");
     }
   }
 

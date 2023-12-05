@@ -9,11 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.spbu.project.models.dto.*;
+import ru.spbu.project.models.enums.ReturnType;
 import ru.spbu.project.models.enums.Stage;
-import ru.spbu.project.models.exceptions.DifferentStageException;
-import ru.spbu.project.models.exceptions.ExistingEmailException;
-import ru.spbu.project.models.exceptions.TestTypeException;
-import ru.spbu.project.models.exceptions.TimeUpException;
+import ru.spbu.project.models.exceptions.*;
 import ru.spbu.project.services.TrainingService;
 
 @RestController
@@ -34,70 +32,70 @@ public class TrainingController {
   }
 
   @PostMapping("/confirm-participation")
-  public ResponseEntity<Boolean> confirmParticipation(
+  public ResponseEntity<ReturnType> confirmParticipation(
       @RequestBody ConfirmApplicationDTO confirmation)
-      throws TimeUpException, DifferentStageException {
+          throws TimeUpException, DifferentStageException, ActionInPastException {
     trainingService.confirmTraining(confirmation.getEmployeeId(), confirmation.getDate());
-    return new ResponseEntity<>(true, HttpStatus.OK);
+    return new ResponseEntity<>(ReturnType.SUCCESS, HttpStatus.OK);
   }
 
   @PostMapping("/refuse-participation")
-  public ResponseEntity<Boolean> refuseParticipation(@RequestBody RefuseApplicationDTO rejection)
-      throws DifferentStageException, TimeUpException {
+  public ResponseEntity<ReturnType> refuseParticipation(@RequestBody RefuseApplicationDTO rejection)
+          throws DifferentStageException, TimeUpException, ActionInPastException {
     trainingService.refuseTraining(rejection.getId(), rejection.getReason(), rejection.getDate());
-    return new ResponseEntity<>(true, HttpStatus.OK);
+    return new ResponseEntity<>(ReturnType.SUCCESS, HttpStatus.OK);
   }
 
   @PostMapping("/take-entrance-test/{employeeId}")
-  public ResponseEntity<Boolean> takeEntryTest(@PathVariable Long employeeId,
+  public ResponseEntity<ReturnType> takeEntryTest(@PathVariable Long employeeId,
       @RequestBody TestDTO testDTO)
-      throws DifferentStageException, TestTypeException, TimeUpException {
+          throws DifferentStageException, TestTypeException, TimeUpException, ActionInPastException {
     if (trainingService.takeEntryTest(employeeId, testDTO)) {
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.SUCCESS, HttpStatus.OK);
     } else {
-      return new ResponseEntity<>(false, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.FAIL, HttpStatus.OK);
     }
   }
 
   @PostMapping("/take-module-test/{employeeId}")
-  public ResponseEntity<Boolean> takeModuleTest(@PathVariable Long employeeId,
+  public ResponseEntity<ReturnType> takeModuleTest(@PathVariable Long employeeId,
       @RequestBody TestDTO moduleTest)
-      throws TimeUpException, DifferentStageException, TestTypeException {
+          throws TimeUpException, DifferentStageException, TestTypeException, ActionInPastException {
     if (trainingService.takeModuleTest(employeeId, moduleTest)) {
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.SUCCESS, HttpStatus.OK);
     } else {
-      return new ResponseEntity<>(false, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.FAIL, HttpStatus.OK);
     }
   }
 
   @PostMapping("/take-practice-task/{employeeId}")
-  public ResponseEntity<Boolean> takePracticeTask(@PathVariable Long employeeId,
+  public ResponseEntity<ReturnType> takePracticeTask(@PathVariable Long employeeId,
       @RequestBody TestDTO practiceTask)
-      throws TimeUpException, DifferentStageException, TestTypeException {
+          throws TimeUpException, DifferentStageException, TestTypeException, ActionInPastException {
     if (trainingService.takePracticeTask(employeeId, practiceTask)) {
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.SUCCESS, HttpStatus.OK);
     } else {
-      return new ResponseEntity<>(false, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.FAIL, HttpStatus.OK);
     }
   }
 
   @PostMapping("/send-to-production-practice")
-  public ResponseEntity<Boolean> passingProductionPractice(
+  public ResponseEntity<ReturnType> passingProductionPractice(
       @RequestBody ProductionPracticeDTO productionPracticeDTO)
-      throws TimeUpException, DifferentStageException {
+      throws ActionInPastException, DifferentStageException {
     trainingService.passingProductionPractice(productionPracticeDTO);
     return new ResponseEntity<>(
-        true,
+        ReturnType.SUCCESS,
         HttpStatus.OK);
   }
 
   @PostMapping("/take-exam/{employeeId}")
-  public ResponseEntity<Boolean> takeExam(@PathVariable Long employeeId, @RequestBody passResultDTO result)
-      throws TimeUpException, DifferentStageException {
+  public ResponseEntity<ReturnType> takeExam(@PathVariable Long employeeId, @RequestBody passResultDTO result)
+      throws ActionInPastException, DifferentStageException {
     if (trainingService.takeExam(employeeId, result)) {
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.SUCCESS, HttpStatus.OK);
     } else {
-      return new ResponseEntity<>(false, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.FAIL, HttpStatus.OK);
     }
   }
 
@@ -110,13 +108,13 @@ public class TrainingController {
   }
 
   @PostMapping("/production-practice-result/{employeeId}")
-  public ResponseEntity<Boolean> productionPracticeResult(@PathVariable Long employeeId,
+  public ResponseEntity<ReturnType> productionPracticeResult(@PathVariable Long employeeId,
       @RequestBody passResultDTO result)
-      throws IllegalArgumentException, TimeUpException, DifferentStageException {
+      throws IllegalArgumentException, ActionInPastException, DifferentStageException {
     if (trainingService.productionPracticeResult(employeeId, result)) {
-      return new ResponseEntity<>(true, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.SUCCESS, HttpStatus.OK);
     } else {
-      return new ResponseEntity<>(false, HttpStatus.OK);
+      return new ResponseEntity<>(ReturnType.FAIL, HttpStatus.OK);
     }
   }
 
@@ -131,8 +129,13 @@ public class TrainingController {
   }
 
   @ExceptionHandler(TimeUpException.class)
-  public ResponseEntity<Boolean> timeUpExceptionHandler(TimeUpException exception) {
-    return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+  public ResponseEntity<ReturnType> timeUpExceptionHandler(TimeUpException exception) {
+    return new ResponseEntity<>(ReturnType.TIME_UP, HttpStatus.OK);
+  }
+
+  @ExceptionHandler(ActionInPastException.class)
+  public ResponseEntity<ReturnType> actionInPastHandler(ActionInPastException exception) {
+    return new ResponseEntity<>(ReturnType.PAST_ACTION, HttpStatus.OK);
   }
 
   @ExceptionHandler(DifferentStageException.class)

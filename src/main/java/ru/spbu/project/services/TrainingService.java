@@ -10,39 +10,36 @@ import ru.spbu.project.models.dto.ProductionPracticeDTO;
 import ru.spbu.project.models.dto.TestDTO;
 import ru.spbu.project.models.dto.TrainingApplicationDTO;
 import ru.spbu.project.models.enums.Stage;
-import ru.spbu.project.models.exceptions.DifferentStageException;
-import ru.spbu.project.models.exceptions.ExistingEmailException;
-import ru.spbu.project.models.exceptions.TestTypeException;
-import ru.spbu.project.models.exceptions.TimeUpException;
+import ru.spbu.project.models.exceptions.*;
 
 public interface TrainingService {
 
   long applyForTraining(TrainingApplicationDTO applicationDTO) throws ExistingEmailException;
 
   void confirmTraining(Long employeeId, LocalDate date)
-      throws TimeUpException, DifferentStageException;
+          throws TimeUpException, DifferentStageException, ActionInPastException;
 
   void refuseTraining(Long employeeId, String reason, LocalDate date)
-      throws DifferentStageException, TimeUpException;
+          throws DifferentStageException, TimeUpException, ActionInPastException;
 
   boolean takeEntryTest(Long employeeId, TestDTO testDTO)
-      throws TimeUpException, DifferentStageException, TestTypeException;
+          throws TimeUpException, DifferentStageException, TestTypeException, ActionInPastException;
 
   boolean takeModuleTest(Long employeeId, TestDTO moduleTest)
-      throws TimeUpException, DifferentStageException, TestTypeException;
+          throws TimeUpException, DifferentStageException, TestTypeException, ActionInPastException;
 
   boolean takePracticeTask(Long employeeId, TestDTO practiceTask)
-      throws TimeUpException, DifferentStageException, TestTypeException;
+          throws TimeUpException, DifferentStageException, TestTypeException, ActionInPastException;
 
   void passingProductionPractice(ProductionPracticeDTO productionPracticeDTO)
-      throws TimeUpException, DifferentStageException;
+      throws ActionInPastException, DifferentStageException;
 
-  boolean takeExam(Long employeeId, passResultDTO result) throws TimeUpException, DifferentStageException;
+  boolean takeExam(Long employeeId, passResultDTO result) throws ActionInPastException, DifferentStageException;
 
   HashMap<Stage, Integer> getFromPeriod(LocalDate startTime, LocalDate endTime);
 
   boolean productionPracticeResult(Long employeeId, passResultDTO result)
-      throws IllegalArgumentException, TimeUpException, DifferentStageException;
+      throws IllegalArgumentException, ActionInPastException, DifferentStageException;
 
   Boolean deleteEmployeeById(Long employeeID);
 
