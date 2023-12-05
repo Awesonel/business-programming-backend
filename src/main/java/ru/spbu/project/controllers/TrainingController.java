@@ -133,6 +133,7 @@ public class TrainingController {
   @ExceptionHandler(TimeUpException.class)
   public ResponseEntity<Boolean> timeUpExceptionHandler(TimeUpException exception) {
     return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+  }
 
   @ExceptionHandler(DifferentStageException.class)
   public ResponseEntity<ErrorMessage> stageDifferentExceptionHandler(
