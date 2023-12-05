@@ -313,10 +313,10 @@ public class TrainingServiceImpl implements TrainingService {
 
   private void checkTime(Employee employee, LocalDate curDate,
                          long timeDif, Stage stage)
-          throws TimeUpException, DifferentStageException {
+          throws TimeUpException, DifferentStageException, ActionInPastException {
     long days = ChronoUnit.DAYS.between(employee.getStartTime(), curDate);
     if (days < 0) {
-      throw new TimeUpException("Action in the past");
+      throw new ActionInPastException("Action in the past");
     }
     if (days > timeDif) {
       employee.setIsActive(false);
