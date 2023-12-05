@@ -222,13 +222,15 @@ public class TrainingServiceImpl implements TrainingService {
   public boolean takeExam(Long employeeId, passResultDTO result)
       throws TimeUpException, DifferentStageException {
     Employee employee = employeeService.findEmployeeByID(employeeId);
-    if (!employee.getStage().equals(Stage.EXAM)) {
+    if (!employee.getStage().equals(Stage.EXAM) && !employee.getStage().equals(Stage.FAILED_EXAM)) {
       throw new DifferentStageException("Employee is not passing exam");
     }
     LocalDate date = result.getDate();
     checkActionInPast(employee.getStartTime(), date);
     if (result.getRes()) {
       employee.setStage(Stage.GRADUATED);
+    } else {
+      employee.setStage(Stage.FAILED_EXAM);
     }
     employee.setExamResult(result.getRes());
     employeeRepository.save(employee);
@@ -242,6 +244,7 @@ public class TrainingServiceImpl implements TrainingService {
     Integer expectsProductionPracticeCounter = 0;
     Integer productionPracticeCounter = 0;
     Integer examCounter = 0;
+    Integer failedExamCounter = 0;
     Integer gradCounter = 0;
 
     for (Employee employee : employees) {
@@ -251,6 +254,7 @@ public class TrainingServiceImpl implements TrainingService {
           case EXPECTS_PRODUCTION_PRACTICE -> expectsProductionPracticeCounter++;
           case PRODUCTION_PRACTICE -> productionPracticeCounter++;
           case EXAM -> examCounter++;
+          case FAILED_EXAM -> failedExamCounter++;
           case GRADUATED -> gradCounter++;
         }
       }
@@ -261,6 +265,7 @@ public class TrainingServiceImpl implements TrainingService {
     result.put(Stage.EXPECTS_PRODUCTION_PRACTICE, expectsProductionPracticeCounter);
     result.put(Stage.PRODUCTION_PRACTICE, productionPracticeCounter);
     result.put(Stage.EXAM, examCounter);
+    result.put(Stage.FAILED_EXAM, failedExamCounter);
     result.put(Stage.GRADUATED, gradCounter);
     return result;
   }
@@ -291,13 +296,6 @@ public class TrainingServiceImpl implements TrainingService {
       if (employeeService.checkEmployeeExistenceByEmail(email)) {
         Employee employee = employeeService.getEmployeeByEmail(email);
         if (employee.getIsActive()) {
-          ++counter;
-        }
-      }
-      // В теории leader может быть отправлен на обучение тоже
-      else {
-        Optional<Leader> optLeader = leaderRepository.findByEmail(email);
-        if (optLeader.isPresent()) {
           ++counter;
         }
       }
