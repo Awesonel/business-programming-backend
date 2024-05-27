@@ -29,7 +29,7 @@ services:
       - backend
     container_name: frontend
     build:
-      context: D:\Projects\business-project-frontend
+      context: C:\Users\HOME\IdeaProjects\business-project-frontend-kyber
       args:
 #        Kubernetes
         - VITE_BASE_URL=http://localhost/api/api

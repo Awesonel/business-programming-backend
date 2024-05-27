@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: business_project-backend
+          image: business-programming-backend-kyber-backend
           imagePullPolicy: Never
           ports:
             - containerPort: 5000

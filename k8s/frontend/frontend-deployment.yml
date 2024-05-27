@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: business_project-frontend
+          image: business-programming-backend-kyber-frontend
           imagePullPolicy: Never
           ports:
             - containerPort: 80
