@@ -13,24 +13,30 @@ services:
     ports:
       - "5432:5432"
 
-#  backend:
-#    build: ./
-#    container_name: backend
-#    ports:
-#      - "5000:5000"
-#    depends_on:
-#      - postgres
-#    environment:
-#      - SERVER_PORT = 5000
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/database
+  backend:
+    build: ./
+    container_name: backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    environment:
+      - SERVER_PORT = 5000
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/database
 
   frontend:
-#    depends_on:
-#      - backend
+    depends_on:
+      - backend
     container_name: frontend
-    build: D:\Projects\business-project-frontend
+    build:
+      context: D:\Projects\business-project-frontend
+      args:
+#        Kubernetes
+        - VITE_BASE_URL=http://localhost/api/api
+#        - Docker Compose
+#        - VITE_BASE_URL=http://localhost:5000/api/api
     restart: always
     ports:
-      - "3000:80"
+      - "80:80"
 volumes:
   db-data:
