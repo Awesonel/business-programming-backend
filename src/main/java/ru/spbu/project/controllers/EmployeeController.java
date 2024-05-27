@@ -3,6 +3,10 @@ package ru.spbu.project.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +19,7 @@ import ru.spbu.project.repositories.EmployeeRepository;
 import ru.spbu.project.repositories.LeaderRepository;
 import ru.spbu.project.services.EmployeeService;
 
+@Tag(name="Employee Controller", description="Управление сотрудниками.")
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
@@ -29,6 +34,14 @@ public class EmployeeController {
     this.leaderRepository = leaderRepository;
   }
 
+  @Operation(
+          summary = "Получить список сотрудников.",
+          description = "Метод, позволяющий получить список сотрудников по этапу или имени.",
+          parameters = {
+                  @Parameter(name = "stages", description = "Список этапов для фильтрации", required = false),
+                  @Parameter(name = "search", description = "Поиск по имени сотрудника", required = false)
+          }
+  )
   @GetMapping("")
   public ResponseEntity<List<Employee>> getParticipants(
           @RequestParam(required = false) List<Stage> stages,
@@ -56,6 +69,14 @@ public class EmployeeController {
     return new ResponseEntity<>(employeeList, HttpStatus.OK);
   }
 
+  @Operation(
+          summary = "Изменить сотрудника.",
+          description = "Метод, позволяющий изменить информацию о сотруднике.",
+          parameters = {
+                  @Parameter(name = "id", description = "Идентификатор сотрудника", required = true),
+                  @Parameter(name = "updateInfo", description = "Новые данные сотрудника", required = true)
+          }
+  )
   @PutMapping("/{id}")
   public ResponseEntity<Employee> changeEmployee(@PathVariable Long id, @RequestBody UpdateEmployeeDTO updateInfo) {
     Employee employee = employeeService.findEmployeeByID(id);
@@ -76,6 +97,13 @@ public class EmployeeController {
     return new ResponseEntity<>(employee, HttpStatus.valueOf(204));
   }
 
+  @Operation(
+          summary = "Поиск сотрудника.",
+          description = "Метод, позволяющий найти сотрудника по идентификатору.",
+          parameters = {
+                  @Parameter(name = "id", description = "Идентификатор сотрудника", required = true)
+          }
+  )
   @GetMapping("/{id}")
   public ResponseEntity<Employee> findEmployeeByID(@PathVariable Long id) {
     Employee employee = employeeService.findEmployeeByID(id);
@@ -88,4 +116,3 @@ public class EmployeeController {
             .body(new ErrorMessage("There is no employee/leader with this id."));
   }
 }
-
