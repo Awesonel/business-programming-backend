@@ -9,21 +9,28 @@ services:
       POSTGRES_PASSWORD: "123"
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
-      - ../2. Init Database:/docker-entrypoint-initdb.d
       - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
-  backend:
-    build: ./
-    container_name: business-project-backend
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    environment:
-      - SERVER_PORT = 8080
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/database
+#  backend:
+#    build: ./
+#    container_name: backend
+#    ports:
+#      - "5000:5000"
+#    depends_on:
+#      - postgres
+#    environment:
+#      - SERVER_PORT = 5000
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/database
 
+  frontend:
+#    depends_on:
+#      - backend
+    container_name: frontend
+    build: D:\Projects\business-project-frontend
+    restart: always
+    ports:
+      - "3000:80"
 volumes:
   db-data:
